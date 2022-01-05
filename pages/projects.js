@@ -14,7 +14,7 @@ export default function Projects() {
               Projects
             </h1>
             <p className="text-center text-base leading-7 text-gray-500 dark:text-gray-400">
-              Things I do for fun 🌟
+              <strong>(</strong> projects : "unfinished" , life : "unfinished" <strong>)</strong>
             </p>
           </div>
         </RouteTitle>

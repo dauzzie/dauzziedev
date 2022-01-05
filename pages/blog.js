@@ -27,7 +27,7 @@ export default function Blog({ posts, initialDisplayPosts, pagination }) {
               Blog
             </h1>
             <p className="text-center text-base leading-7 text-gray-500 dark:text-gray-400">
-              Whatever I am learning, thinking, feeling 🌞
+              <strong>[</strong> notes , thoughts , rants , todos <strong>]</strong>
             </p>
           </div>
       </RouteTitle>
