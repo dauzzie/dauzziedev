@@ -5,8 +5,8 @@
       <link>https://tailwind-nextjs-starter-blog.vercel.app/blog</link>
       <description>Oh, and I also build games 🎮  and do graphic design 💩 </description>
       <language>en-us</language>
-      <managingEditor>address@yoursite.com (Dausi Husaini)</managingEditor>
-      <webMaster>address@yoursite.com (Dausi Husaini)</webMaster>
+      <managingEditor>me@dauzzie.dev (Dausi Husaini)</managingEditor>
+      <webMaster>me@dauzzie.dev (Dausi Husaini)</webMaster>
       <lastBuildDate>Wed, 15 Aug 2018 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://tailwind-nextjs-starter-blog.vercel.app/tags/reflection/feed.xml" rel="self" type="application/rss+xml"/>
       
@@ -16,7 +16,7 @@
     <link>https://tailwind-nextjs-starter-blog.vercel.app/blog/the-time-machine</link>
     <description>The Time Traveller (for so it will be convenient to speak of him) was expounding a recondite matter to us. His pale grey eyes shone and twinkled, and his usually pale face was flushed and animated...</description>
     <pubDate>Wed, 15 Aug 2018 00:00:00 GMT</pubDate>
-    <author>address@yoursite.com (Dausi Husaini)</author>
+    <author>me@dauzzie.dev (Dausi Husaini)</author>
     <category>writings</category><category>book</category><category>reflection</category>
   </item>
 
