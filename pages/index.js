@@ -60,14 +60,14 @@ export default function Home({ posts }) {
         <div className="pt-10 pb-10 px-10 divide-y divide-dotted divide-gray-200 dark:divide-gray-700 space-y-2 md:space-y-5 justify-center">
           <div>
           <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 flex-col'>
+            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
               <div className="flex space-x-2">
                 <p className="text-purple-500 dark:text-purple-400">📚 group</p>
                 <p> - compiling <strong>current</strong>  interests... </p>
               </div>
 
           </p>
-          <p className='text-sm md:text-base lg:px-40 flex-col'>
+          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
             <div className="flex space-x-2">
               <p className="text-blue-800 dark:text-blue-500">📚 stack</p>
               <p> - compiled new stuff I want to learn successfully in {Math.floor(Math.random() * 100)} ms</p>
@@ -79,14 +79,14 @@ export default function Home({ posts }) {
           </div>
           <div>
           <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 flex-col'>
+            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
               <div className="flex space-x-2">
                 <p className="text-purple-500 dark:text-purple-400">🧠  group</p>
                 <p> - compiling <strong>experienced</strong> stacks... </p>
               </div>
 
           </p>
-          <p className='text-sm md:text-base lg:px-40 flex-col'>
+          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
             <div className="flex space-x-2">
               <p className="text-blue-800 dark:text-blue-500">🧠  stack</p>
               <p> - compiled current build in {Math.floor(Math.random() * 100)} ms</p>
@@ -97,14 +97,14 @@ export default function Home({ posts }) {
           </div>
           <div>
           <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 flex-col'>
+            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
               <div className="flex space-x-2">
                 <p className="text-purple-500 dark:text-purple-400">🧐  group</p>
                 <p> - compiling potential next adventures... </p>
               </div>
 
           </p>
-          <p className='text-sm md:text-base lg:px-40 flex-col'>
+          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
             <div className="flex space-x-2">
               <p className="text-blue-800 dark:text-blue-500">🧐  stack</p>
               <p> - compiled things to venture in the future in {Math.floor(Math.random() * 100)} ms</p>
