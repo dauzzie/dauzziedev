@@ -6,7 +6,7 @@ export default function Login({providers}) {
             <img className="w-16 mb-5" src="https://links.papareact.com/9xl" alt=""/>
             {
                 Object.values(providers).map((provider) => {
-                    console.log(provider.name);
+                    // console.log(provider.name);
                     return (
                     <div key={provider.name}>
                         <button className="bg-green-500 text-white p-5 rounded-full"
