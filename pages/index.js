@@ -57,63 +57,32 @@ export default function Home({ posts }) {
         </div>
 
 
-        <div className="pt-10 pb-10 px-10 divide-y divide-dotted divide-gray-200 dark:divide-gray-700 space-y-2 md:space-y-5 justify-center">
-          <div>
-          <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-              <div className="flex space-x-2">
-                <p className="text-purple-500 dark:text-purple-400">📚 group</p>
-                <p> - compiling <strong>current</strong>  interests... </p>
-              </div>
-
-          </p>
-          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-            <div className="flex space-x-2">
-              <p className="text-blue-800 dark:text-blue-500">📚 stack</p>
-              <p> - compiled new stuff I want to learn successfully in {Math.floor(Math.random() * 100)} ms</p>
-            </div>
-          </p>
-          </div>
-          <Scroller type="current"/>
-
-          </div>
-          <div>
-          <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-              <div className="flex space-x-2">
-                <p className="text-purple-500 dark:text-purple-400">🧠  group</p>
-                <p> - compiling <strong>experienced</strong> stacks... </p>
-              </div>
-
-          </p>
-          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-            <div className="flex space-x-2">
-              <p className="text-blue-800 dark:text-blue-500">🧠  stack</p>
-              <p> - compiled current build in {Math.floor(Math.random() * 100)} ms</p>
-            </div>
-          </p>
-          </div>
-          <Scroller type="master"/>
-          </div>
-          <div>
-          <div className="pt-2 pb-2">
-            <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-              <div className="flex space-x-2">
-                <p className="text-purple-500 dark:text-purple-400">🧐  group</p>
-                <p> - compiling potential next adventures... </p>
-              </div>
-
-          </p>
-          <p className='text-sm md:text-base lg:px-40 md:px-40 flex-col'>
-            <div className="flex space-x-2">
-              <p className="text-blue-800 dark:text-blue-500">🧐  stack</p>
-              <p> - compiled things to venture in the future in {Math.floor(Math.random() * 100)} ms</p>
-            </div>
-          </p>
-          </div>
-          <Scroller type="curious"/>
-
-          </div>
+        <div className="pt-10 pb-10 divide-y divide-dotted divide-gray-200 dark:divide-gray-700 space-y-2 md:space-y-5 justify-center">
+          {
+            [
+              {icon: "📚" , ht:"current", text_1: "interests...", text_2:"new stuff I am currently exploring", cat: "current"},
+              {icon: "🧠 " , ht:"experienced", text_1: "stacks...", text_2:"current build", cat: "master"},
+              {icon: "❓ " , ht:"potential", text_1: "ventures...", text_2:"techs to try out", cat: "curious"}
+            ].map((el) => {
+              return (<div key={el.cat}>
+                <div className="pt-2 pb-2 text-sm md:text-base px-5 md:px-20 lg:px-40">
+                  <p className='flex-col'>
+                    <div className="flex space-x-2">
+                      <p className="text-purple-500 dark:text-purple-400">{el.icon} group</p>
+                      <p> - compiling <strong>{el.ht}</strong> {el.text_1} </p>
+                    </div>
+                  </p>
+                  <p className='flex-col'>
+                    <div className="flex space-x-2">
+                      <p className="text-blue-800 dark:text-blue-500">{el.icon} stack</p>
+                      <p> - compiled {el.text_2} in {Math.floor(Math.random() * 100)} ms</p>
+                    </div>
+                  </p>
+                </div>
+                <Scroller type={el.cat}/>
+              </div>)
+            })
+          }
         </div>
         <div className="pt-10 pb-10 px-10 space-y-2 md:space-y-5">
           <p className='text-base font-bold'>Login to see what I am listening to!</p>

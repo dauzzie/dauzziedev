@@ -16,23 +16,21 @@ export default function SpotifyNow() {
     const {data: session, status} = useSession()
 
     const [currTrack, setCurrTrack] = useRecoilState(currentTrackState)
-    const [playback, setPlayback] = useRecoilState(playbackState)
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState)
 
     useEffect(() => {
         if (spotifyApi.getAccessToken()) {
             spotifyApi.getMyCurrentPlayingTrack().then((data) => {
-                setCurrTrack(data.body.item);
-            })
+                setCurrTrack(data?.body.item ?? null)
+            }).catch(e => console.log(e))
         }
     }, [session, spotifyApi])
 
     useEffect(() => {
         if(spotifyApi.getAccessToken()) {
             spotifyApi.getMyCurrentPlaybackState().then((data) => {
-                setPlayback(data.body);
-                setIsPlaying(data.body.is_playing)
-            })
+                setIsPlaying(data?.body.is_playing?? false)
+            }).catch(e => console.log(e))
         }
     }, [session, spotifyApi])
 
@@ -73,8 +71,6 @@ export default function SpotifyNow() {
                     )
             }
             </div>
-
-
         </div>
     )
 }
