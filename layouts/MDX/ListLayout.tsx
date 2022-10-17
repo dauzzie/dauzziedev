@@ -37,7 +37,6 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
               {title}
             </h1>
           </div>
-          
           <div className="relative max-w-full">
             <input
               aria-label="Search articles"
