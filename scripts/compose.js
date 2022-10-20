@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
-const inquirer = require('inquirer')
-const dedent = require('dedent')
+import * as fs from 'fs'
+import path from 'path'
+import inquirer from 'inquirer'
+import dedent from 'dedent'
 
 const root = process.cwd()
 
@@ -12,7 +12,7 @@ const getAuthors = () => {
 }
 
 const getLayouts = () => {
-  const layoutPath = path.join(root, 'layouts')
+  const layoutPath = path.join(root, 'layouts/MDX')
   const layoutList = fs
     .readdirSync(layoutPath)
     .map((filename) => path.parse(filename).name)
