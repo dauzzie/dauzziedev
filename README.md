@@ -1,1 +1,0 @@
-tailwind-next-dev
