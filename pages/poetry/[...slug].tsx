@@ -6,12 +6,22 @@ import { POETRY_ACCESS_COOKIE } from '@/lib/auth'
 import { CoreContent, coreContent, sortedPoetryPost } from '@/lib/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
 import { allBlogs } from 'contentlayer/generated'
-import { InferGetServerSidePropsType } from 'next'
-import { GetServerSidePropsContext } from 'next/types'
+import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 
 const DEFAULT_LAYOUT = 'PostLayout'
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+interface PoetryPostPageProps {
+  post: Blog
+  author: string
+  prev: CoreContent<Blog> | null
+  next: CoreContent<Blog> | null
+}
+
+type Params = { slug: string[] }
+
+export const getServerSideProps: GetServerSideProps<PoetryPostPageProps, Params> = async (
+  context: GetServerSidePropsContext<Params>
+) => {
   const poetryAccessToken = process.env.POETRY_ACCESS_TOKEN
   if (poetryAccessToken) {
     const cookie = context.req.cookies?.[POETRY_ACCESS_COOKIE]
@@ -43,7 +53,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const prev = prevContent ? coreContent(prevContent) : null
   const nextContent = sortedPosts[postIndex - 1] || null
   const next = nextContent ? coreContent(nextContent) : null
-  const author = post.author || ['default']
+  const author = post.author || 'default'
 
   return {
     props: {
@@ -60,7 +70,7 @@ export default function PoetryPost({
   author,
   prev,
   next,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: PoetryPostPageProps) {
   return (
     <>
       <ScrollProgressBar />
