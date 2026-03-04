@@ -102,6 +102,7 @@ export default function PoetryPost({ post, author, prev, next }: PoetryPostPageP
           toc={resolvedPost.toc}
           content={resolvedPost}
           authorDetails={author}
+          forcePoetryRoute
           prev={prev}
           next={next}
         />

@@ -1,11 +1,12 @@
 import Tag from '@/components/Tag'
+import kebabCase from '@/lib/utils/kebabCase'
 import { CoreContent } from '@/lib/utils/contentlayer'
-import type { Blog } from 'contentlayer/generated'
+import type { Blog, Poem } from 'contentlayer/generated'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 export interface PostCardProps {
-  posts: CoreContent<Blog>[]
+  posts: CoreContent<Blog | Poem>[]
   showTags?: boolean
   linkPrefix?: '/journal' | '/poetry'
 }
@@ -15,6 +16,15 @@ export default function PostCard({
   showTags = true,
   linkPrefix = '/journal',
 }: PostCardProps) {
+  const resolvePostHref = (slug: string, tags?: string[]) => {
+    if (linkPrefix === '/poetry') {
+      return `/poetry/${slug}`
+    }
+    const normalizedTags = (tags || []).map((tag) => kebabCase(tag))
+    const isPoetry = normalizedTags.includes('poetry') || normalizedTags.includes('poem')
+    return `${isPoetry ? '/poetry' : '/journal'}/${slug}`
+  }
+
   return (
     <ul>
       {posts.map(({ slug, title, tags, summary }, index) => (
@@ -29,7 +39,7 @@ export default function PostCard({
             <div className="space-y-3 xl:col-span-4">
               <h2 className="text-2xl font-bold leading-8 tracking-tight">
                 <Link
-                  href={`${linkPrefix}/${slug}`}
+                  href={resolvePostHref(slug, tags)}
                   aria-label={`Read "${title}"`}
                   className="text-primary-500 hover:text-primary-400 duration-300"
                 >

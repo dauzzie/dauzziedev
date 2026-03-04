@@ -45,12 +45,39 @@ export default function Hero(): ReactElement {
               {siteMetadata.slogan}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href={siteMetadata.resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="apple-button-primary"
+              >
+                View Resume
+              </a>
               <Link href="/journal" className="apple-button-primary">
                 Enter Journal
               </Link>
               <Link href="/about" className="apple-button-secondary">
                 Career Timeline
               </Link>
+            </div>
+            <div className="rave-tile mt-6 rounded-2xl border border-primary-500/30 p-4">
+              <p className="text-xs font-semibold tracking-[0.16em] text-primary-500 uppercase">
+                Resume Spotlight
+              </p>
+              <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+                Senior Software Engineer (macOS / Systems): architecture, platform reliability,
+                CI/CD, and security-critical delivery.
+              </p>
+              <div className="mt-3">
+                <a
+                  href={siteMetadata.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline-magical text-sm font-semibold"
+                >
+                  Open full resume &rarr;
+                </a>
+              </div>
             </div>
           </motion.div>
         </div>

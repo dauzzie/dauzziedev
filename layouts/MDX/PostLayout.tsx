@@ -15,17 +15,26 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 }
 
 interface Props {
-  content: CoreContent<Blog | Poem>
+  content: Blog | Poem
   authorDetails: CoreContent<Authors>
   children: ReactNode
   next?: { slug: string; title: string }
   prev?: { slug: string; title: string }
+  forcePoetryRoute?: boolean
 }
 
-export default function PostLayout({ content, authorDetails, children, next, prev }: Props) {
+export default function PostLayout({
+  content,
+  authorDetails,
+  children,
+  next,
+  prev,
+  forcePoetryRoute = false,
+}: Props) {
   const { slug, date, title, author, readingTime, tags } = content
   const normalizedTags = tags?.map((tag) => kebabCase(tag)) ?? []
-  const isPoetry = normalizedTags.includes('poetry') || normalizedTags.includes('poem')
+  const isPoetry =
+    forcePoetryRoute || normalizedTags.includes('poetry') || normalizedTags.includes('poem')
   const contentRoute = isPoetry ? 'poetry' : 'journal'
 
   return (

@@ -238,6 +238,74 @@ input:-webkit-autofill:focus {
   list-style-position: inside;
 }
 
+.about-shell {
+  position: relative;
+}
+
+.about-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 280px;
+  height: 280px;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.18), rgba(10, 132, 255, 0));
+  transform: translate(-30%, -25%);
+}
+
+.about-avatar-wrap {
+  position: relative;
+  border-radius: 9999px;
+  padding: 4px;
+  background: linear-gradient(140deg, rgba(10, 132, 255, 0.9), rgba(94, 234, 212, 0.7));
+}
+
+.about-avatar {
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 24px -16px rgba(15, 23, 42, 0.8);
+}
+
+.about-prose {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.about-prose h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.01em;
+}
+
+.about-prose h3 {
+  margin-top: 1.3rem;
+  margin-bottom: 0.45rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.about-prose h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 1.02rem;
+}
+
+.about-prose p {
+  margin-top: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.about-prose ul li {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.about-prose strong {
+  color: #0a84ff;
+  font-weight: 700;
+}
+
 body.poetry-mode {
   color: #2f3a27;
   background:
@@ -313,6 +381,20 @@ body.poetry-mode .apple-nav-link:hover {
 body.poetry-mode .apple-nav-link-active {
   background: #6f805c;
   color: #f6f1e4;
+}
+
+body.poetry-mode .text-primary-500 {
+  color: #6f805c !important;
+}
+
+body.poetry-mode .outline-primary-500 {
+  outline-color: #7e9368 !important;
+}
+
+body.poetry-mode .underline-magical {
+  background-image:
+    linear-gradient(transparent, transparent),
+    linear-gradient(#6f805c, #6f805c);
 }
 
 .dark body.poetry-mode .apple-nav-link {
@@ -595,6 +677,20 @@ body.project-mode .apple-nav-link:hover {
 body.project-mode .apple-nav-link-active {
   background: linear-gradient(120deg, #00b5ff, #00e1ad);
   color: #04131c;
+}
+
+body.project-mode .text-primary-500 {
+  color: #3de2c8 !important;
+}
+
+body.project-mode .outline-primary-500 {
+  outline-color: #2ad7f0 !important;
+}
+
+body.project-mode .underline-magical {
+  background-image:
+    linear-gradient(transparent, transparent),
+    linear-gradient(#35d7f4, #35d7f4);
 }
 
 body.project-mode .apple-button-primary {

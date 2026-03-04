@@ -10,6 +10,7 @@ const siteMetadata = {
   siteUrl: 'https://dauzzie.dev/',
   siteRepo: 'https://github.com/dauzzie/dauzziedev',
   siteLogo: '/static/images/logo.png',
+  resumeUrl: '/static/resume/muhamad-firdaus-husaini-2026-mar.pdf',
   image: '/static/images/avatar.webp',
   socialBanner: '/static/images/twitter-card.png',
   email: 'dausihunts@gmail.com',
