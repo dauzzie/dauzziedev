@@ -65,12 +65,7 @@ export const getServerSideProps: GetServerSideProps<PoetryPostPageProps, Params>
   }
 }
 
-export default function PoetryPost({
-  post,
-  author,
-  prev,
-  next,
-}: PoetryPostPageProps) {
+export default function PoetryPost({ post, author, prev, next }: PoetryPostPageProps) {
   return (
     <>
       <ScrollProgressBar />
