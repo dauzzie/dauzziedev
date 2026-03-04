@@ -7,11 +7,12 @@ import { CoreContent, coreContent, sortedPoetryPost } from '@/lib/utils/contentl
 import type { Blog } from 'contentlayer/generated'
 import { allBlogs } from 'contentlayer/generated'
 import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import { useRouter } from 'next/router'
 
 const DEFAULT_LAYOUT = 'PostLayout'
 
 interface PoetryPostPageProps {
-  post: Blog
+  post: Blog | null
   author: string
   prev: CoreContent<Blog> | null
   next: CoreContent<Blog> | null
@@ -66,29 +67,44 @@ export const getServerSideProps: GetServerSideProps<PoetryPostPageProps, Params>
 }
 
 export default function PoetryPost({ post, author, prev, next }: PoetryPostPageProps) {
+  const router = useRouter()
+  const routeSlugFromQuery = router.isReady
+    ? Array.isArray(router.query.slug)
+      ? router.query.slug.join('/')
+      : ''
+    : ''
+  const routeSlugFromPath = decodeURIComponent(
+    (router.asPath || '')
+      .split('?')[0]
+      .replace(/^\/poetry\/+/, '')
+      .replace(/\/+$/, '')
+  )
+  const routeSlug = routeSlugFromQuery || routeSlugFromPath
+  const resolvedPost =
+    post ?? (routeSlug ? sortedPoetryPost(allBlogs).find((p) => p.slug === routeSlug) : null)
+
+  if (!resolvedPost) {
+    return (
+      <MainLayout>
+        <div className="mt-24 text-center">
+          <PageTitle>Loading Poem...</PageTitle>
+        </div>
+      </MainLayout>
+    )
+  }
+
   return (
     <>
       <ScrollProgressBar />
       <MainLayout>
-        {post ? (
-          <MDXLayoutRenderer
-            layout={post.layout || DEFAULT_LAYOUT}
-            toc={post.toc}
-            content={post}
-            authorDetails={author}
-            prev={prev}
-            next={next}
-          />
-        ) : (
-          <div className="mt-24 text-center">
-            <PageTitle>
-              Under Construction{' '}
-              <span role="img" aria-label="roadwork sign">
-                🚧
-              </span>
-            </PageTitle>
-          </div>
-        )}
+        <MDXLayoutRenderer
+          layout={resolvedPost.layout || DEFAULT_LAYOUT}
+          toc={resolvedPost.toc}
+          content={resolvedPost}
+          authorDetails={author}
+          prev={prev}
+          next={next}
+        />
       </MainLayout>
     </>
   )
