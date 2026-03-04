@@ -40,6 +40,23 @@ open Package.swift
 - Triggers deployment to Vercel (via Deploy Hook or Vercel CLI)
 - One-click publish flow: create draft (optional) -> commit -> push -> deploy
 
+## Recommended flow
+
+1. Click `Sync`
+2. `Open` an existing entry (or click `New`)
+3. Write and click `Save Draft`
+4. Click `Publish Live`
+
+Delete flow:
+
+1. Click trash icon next to an entry (or `Delete Current`)
+2. Confirm in the delete dialog
+
+Use `Advanced Publish Options` only when you need split control (`Commit + Push` or `Deploy Only`).
+
+By default, `Publish Live` uses Git push and relies on Vercel's automatic Git deployment.
+Disable the toggle in the app only if you want manual deploy calls from the app.
+
 ## Vercel deploy options in app
 
 Use either:

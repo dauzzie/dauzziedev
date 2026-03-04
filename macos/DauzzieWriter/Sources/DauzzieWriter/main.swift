@@ -77,6 +77,7 @@ final class WriterViewModel: ObservableObject {
   @Published var commandLog = ""
   @Published var isRunningAction = false
   @Published var vercelAuthStatus = "Not detected"
+  @Published var useGitAutoDeploy = true
 
   private var vercelToken = ""
 
@@ -91,6 +92,7 @@ final class WriterViewModel: ObservableObject {
   init() {
     let defaults = UserDefaults.standard
     self.repoPath = defaults.string(forKey: "repoPath") ?? ""
+    self.useGitAutoDeploy = defaults.object(forKey: "useGitAutoDeploy") as? Bool ?? true
     self.postDate = todayDateString()
     autoConfigureWorkspace()
     refreshDailyPrompt()
@@ -103,8 +105,7 @@ final class WriterViewModel: ObservableObject {
       UserDefaults.standard.set(resolvedRepo, forKey: "repoPath")
     }
 
-    vercelToken = detectDefaultVercelToken()
-    vercelAuthStatus = vercelToken.isEmpty ? "Not detected" : "Loaded automatically"
+    refreshVercelAuthStatus()
   }
 
   func saveSettings() {
@@ -114,6 +115,7 @@ final class WriterViewModel: ObservableObject {
     }
     let defaults = UserDefaults.standard
     defaults.set(repoPath, forKey: "repoPath")
+    defaults.set(useGitAutoDeploy, forKey: "useGitAutoDeploy")
     refreshRecentDrafts()
     statusMessage = "Settings saved."
   }
@@ -146,6 +148,12 @@ final class WriterViewModel: ObservableObject {
       .sorted { $0.modifiedAt > $1.modifiedAt }
       .prefix(25)
       .map { $0 }
+  }
+
+  func filteredDrafts(search: String) -> [RecentDraft] {
+    let query = search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if query.isEmpty { return recentDrafts }
+    return recentDrafts.filter { $0.name.lowercased().contains(query) }
   }
 
   func newPost() {
@@ -257,10 +265,16 @@ final class WriterViewModel: ObservableObject {
       return
     }
 
+    deleteDraft(named: draftName)
+  }
+
+  func deleteDraft(named draftName: String) {
     let path = draftPath(named: draftName)
     do {
       try FileManager.default.removeItem(atPath: path)
-      newPost()
+      if currentDraftName == draftName {
+        newPost()
+      }
       refreshRecentDrafts()
       statusMessage = "Deleted: \(draftName)"
     } catch {
@@ -334,10 +348,6 @@ final class WriterViewModel: ObservableObject {
       statusMessage = "Set a valid git repo path first."
       return
     }
-    guard !vercelToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-      statusMessage = "No Vercel token found. Run `vercel login` once on this Mac."
-      return
-    }
 
     runAction {
       self.runDeploy()
@@ -374,13 +384,20 @@ final class WriterViewModel: ObservableObject {
         return CommandResult(exitCode: gitResult.exitCode, output: sections.joined(separator: "\n\n"))
       }
 
+      if self.useGitAutoDeploy {
+        sections.append("Vercel auto-deploy mode enabled: skipping manual deploy step.")
+        return CommandResult(exitCode: 0, output: sections.joined(separator: "\n\n"))
+      }
+
       let deployResult = self.runDeploy()
       sections.append(deployResult.output)
       return CommandResult(exitCode: deployResult.exitCode, output: sections.joined(separator: "\n\n"))
     } completion: { result in
       self.commandLog = result.output
       if result.exitCode == 0 {
-        self.statusMessage = "One-click publish completed: save, push, deploy."
+        self.statusMessage = self.useGitAutoDeploy
+          ? "One-click publish completed: save + push. Vercel will auto-deploy from Git."
+          : "One-click publish completed: save, push, deploy."
       } else {
         self.statusMessage = "One-click publish failed. Check command log."
       }
@@ -523,15 +540,10 @@ final class WriterViewModel: ObservableObject {
       return CommandResult(exitCode: 1, output: "Repo path is not a git repository: \(repoPath)")
     }
 
-    var env = ProcessInfo.processInfo.environment
-    env["VERCEL_TOKEN"] = vercelToken
-
-    let args = ["deploy", "--prod", "--yes", "--token", vercelToken]
+    let env = deploymentEnvironment()
+    let args = ["deploy", "--prod", "--yes"]
     let deploy = runCommand("vercel", args, environment: env, workingDirectory: repo)
-    return CommandResult(
-      exitCode: deploy.exitCode,
-      output: "$ vercel deploy --prod --yes --token ******\n\(deploy.output)"
-    )
+    return CommandResult(exitCode: deploy.exitCode, output: "$ vercel deploy --prod --yes\n\(deploy.output)")
   }
 
   private func effectiveRepoPath() -> String? {
@@ -573,9 +585,22 @@ final class WriterViewModel: ObservableObject {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
     process.arguments = [executable] + arguments
+    var mergedEnv = ProcessInfo.processInfo.environment
     if let environment {
-      process.environment = environment
+      for (key, value) in environment {
+        mergedEnv[key] = value
+      }
     }
+
+    let fallbackPaths = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"]
+    let existingPath = mergedEnv["PATH"] ?? ""
+    var pathParts = existingPath.split(separator: ":").map(String.init)
+    for path in fallbackPaths where !pathParts.contains(path) {
+      pathParts.append(path)
+    }
+    mergedEnv["PATH"] = pathParts.joined(separator: ":")
+    process.environment = mergedEnv
+
     if let workingDirectory {
       process.currentDirectoryURL = URL(fileURLWithPath: workingDirectory)
     }
@@ -639,6 +664,35 @@ final class WriterViewModel: ObservableObject {
     return ""
   }
 
+  private func deploymentEnvironment() -> [String: String] {
+    var env = ProcessInfo.processInfo.environment
+    if !vercelToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      env["VERCEL_TOKEN"] = vercelToken
+    }
+    return env
+  }
+
+  func refreshVercelAuthStatus() {
+    vercelToken = detectDefaultVercelToken()
+    let repo = effectiveRepoPath() ?? FileManager.default.currentDirectoryPath
+    let whoami = runCommand("vercel", ["whoami"], environment: deploymentEnvironment(), workingDirectory: repo)
+
+    if whoami.exitCode == 0 {
+      let user = whoami.output
+        .split(separator: "\n")
+        .map(String.init)
+        .first(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) ?? "authenticated user"
+      vercelAuthStatus = "Signed in as \(user)"
+      return
+    }
+
+    if !vercelToken.isEmpty {
+      vercelAuthStatus = "Token loaded (whoami unavailable)"
+    } else {
+      vercelAuthStatus = "Not signed in. Run `vercel login` once."
+    }
+  }
+
   private func loadTokenFromKeychain() -> String? {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
@@ -662,164 +716,190 @@ final class WriterViewModel: ObservableObject {
 
 private struct ContentView: View {
   @StateObject private var model = WriterViewModel()
+  @State private var searchText = ""
+  @State private var draftToDelete: String?
+  @State private var showAdvanced = false
+  @State private var showCommandLog = false
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 16) {
-        Text("Dauzzie Writer")
-          .font(.system(size: 28, weight: .bold, design: .rounded))
-
-        Text("Companion app for blog posts, poems, stories, and one-click publishing")
+    VStack(spacing: 0) {
+      HStack {
+        VStack(alignment: .leading, spacing: 2) {
+          Text("Dauzzie Writer")
+            .font(.system(size: 24, weight: .bold, design: .rounded))
+          Text("Write first, publish fast")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+        Spacer()
+        Text(model.vercelAuthStatus)
+          .font(.caption)
           .foregroundStyle(.secondary)
+      }
+      .padding(.horizontal, 16)
+      .padding(.vertical, 12)
 
-        GroupBox("Workspace") {
-          VStack(spacing: 10) {
-            TextField("Repo path", text: $model.repoPath)
-              .textFieldStyle(.roundedBorder)
+      Divider()
+
+      HStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 10) {
+          TextField("Search entries", text: $searchText)
+            .textFieldStyle(.roundedBorder)
+
+          HStack(spacing: 8) {
+            Button("New") { model.newPost() }
+              .buttonStyle(.borderedProminent)
+            Button("Sync") { model.syncFromGitHub() }
+              .buttonStyle(.borderedProminent)
+              .disabled(model.isRunningAction)
+          }
+
+          List(model.filteredDrafts(search: searchText)) { draft in
             HStack {
-              Text("Vercel auth:")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-              Text(model.vercelAuthStatus)
-                .font(.caption)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            HStack(spacing: 8) {
-              Button("Auto Detect") { model.autoConfigureWorkspace() }
-                .buttonStyle(.borderedProminent)
-              Button("Save Repo Path") { model.saveSettings() }
-                .buttonStyle(.borderedProminent)
-              Button("Sync from GitHub") { model.syncFromGitHub() }
-                .buttonStyle(.borderedProminent)
-                .disabled(model.isRunningAction)
-              Button("Open Repo") { model.openRepo() }
+              VStack(alignment: .leading, spacing: 2) {
+                Text(draft.name)
+                  .font(.system(size: 12, weight: .semibold, design: .rounded))
+                Text(draft.modifiedAt.formatted(date: .abbreviated, time: .shortened))
+                  .foregroundStyle(.secondary)
+                  .font(.caption2)
+              }
+              Spacer()
+              Button("Open") { model.loadDraft(named: draft.name) }
                 .buttonStyle(.bordered)
-              Button("Open Local Site") { model.openLocalSite() }
-                .buttonStyle(.bordered)
+              Button {
+                draftToDelete = draft.name
+              } label: {
+                Image(systemName: "trash")
+              }
+              .buttonStyle(.bordered)
+              .tint(.red)
             }
           }
-        }
 
-        GroupBox("Daily Prompt") {
-          HStack {
-            Text(model.dailyPrompt)
-              .frame(maxWidth: .infinity, alignment: .leading)
-            Button("Refresh") { model.refreshDailyPrompt() }
-          }
-        }
-
-        GroupBox("Post Editor") {
-          VStack(spacing: 10) {
-            HStack(spacing: 12) {
-              TextField("Title", text: $model.title)
+          DisclosureGroup("Workspace Settings") {
+            VStack(spacing: 8) {
+              TextField("Repo path", text: $model.repoPath)
                 .textFieldStyle(.roundedBorder)
+              HStack(spacing: 8) {
+                Button("Auto Detect") { model.autoConfigureWorkspace() }
+                  .buttonStyle(.bordered)
+                Button("Refresh Auth") { model.refreshVercelAuthStatus() }
+                  .buttonStyle(.bordered)
+                Button("Save") { model.saveSettings() }
+                  .buttonStyle(.bordered)
+                Button("Open Repo") { model.openRepo() }
+                  .buttonStyle(.bordered)
+              }
+            }
+            .padding(.top, 6)
+          }
+        }
+        .frame(width: 350)
+        .padding(14)
+        .background(Color(NSColor.windowBackgroundColor))
+
+        Divider()
+
+        ScrollView {
+          VStack(alignment: .leading, spacing: 12) {
+            TextField("Title", text: $model.title)
+              .font(.title2)
+              .textFieldStyle(.roundedBorder)
+
+            TextField("Summary", text: $model.summary)
+              .textFieldStyle(.roundedBorder)
+
+            HStack(spacing: 12) {
               Picker("Category", selection: $model.selectedCategory) {
                 ForEach(PostCategory.allCases) { type in
                   Text(type.rawValue).tag(type)
                 }
               }
               .frame(width: 170)
-            }
-
-            HStack(spacing: 12) {
               TextField("Date (YYYY-MM-DD)", text: $model.postDate)
                 .textFieldStyle(.roundedBorder)
-              TextField("Author", text: $model.author)
-                .textFieldStyle(.roundedBorder)
             }
-
-            TextField("Summary", text: $model.summary)
-              .textFieldStyle(.roundedBorder)
 
             TextEditor(text: $model.body)
               .font(.system(size: 14, weight: .regular, design: .monospaced))
-              .frame(minHeight: 200)
+              .frame(minHeight: 420)
               .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.25)))
 
             HStack(spacing: 8) {
-              Button("New Post") { model.newPost() }
-                .buttonStyle(.bordered)
-              Button("Create") { _ = model.createDraft() }
+              Button("Save Draft") { _ = model.saveCurrentPost() }
                 .buttonStyle(.borderedProminent)
-              Button("Save Changes") { _ = model.saveCurrentPost() }
-                .buttonStyle(.borderedProminent)
-              Button("Delete") { model.deleteCurrentDraft() }
-                .buttonStyle(.bordered)
-                .tint(.red)
-              Button("Open Current") { model.openCurrentDraft() }
-                .buttonStyle(.bordered)
-            }
-
-            if let draftName = model.currentDraftName {
-              Text("Editing: \(draftName)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-              Text("Editing: unsaved draft")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-          }
-        }
-
-        GroupBox("Publish") {
-          VStack(spacing: 10) {
-            TextField("Commit message", text: $model.commitMessage)
-              .textFieldStyle(.roundedBorder)
-            HStack(spacing: 8) {
-              Button("Commit + Push") { model.commitAndPush() }
+              Button("Publish Live") { model.oneClickPublish() }
                 .buttonStyle(.borderedProminent)
                 .disabled(model.isRunningAction)
-              Button("Deploy to Vercel") { model.deployToVercel() }
-                .buttonStyle(.bordered)
-                .disabled(model.isRunningAction)
-              Button("One-Click Publish") { model.oneClickPublish() }
-                .buttonStyle(.bordered)
-                .disabled(model.isRunningAction)
-            }
-            if !model.commandLog.isEmpty {
-              ScrollView {
-                Text(model.commandLog)
-                  .font(.system(size: 12, weight: .regular, design: .monospaced))
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .padding(8)
+              Button("Delete Current") {
+                if let name = model.currentDraftName {
+                  draftToDelete = name
+                }
               }
-              .frame(minHeight: 140, maxHeight: 220)
-              .background(Color.black.opacity(0.06))
-              .cornerRadius(8)
-            }
-          }
-        }
-
-        Text(model.statusMessage)
-          .foregroundStyle(model.statusMessage.lowercased().contains("failed") ? .red : .secondary)
-
-        Divider()
-
-        Text("Recent Drafts")
-          .font(.headline)
-
-        List(model.recentDrafts) { draft in
-          HStack {
-            VStack(alignment: .leading, spacing: 2) {
-              Text(draft.name)
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-              Text(draft.modifiedAt.formatted(date: .abbreviated, time: .shortened))
-                .foregroundStyle(.secondary)
-                .font(.caption)
-            }
-            Spacer()
-            Button("Load") { model.loadDraft(named: draft.name) }
               .buttonStyle(.bordered)
+              .tint(.red)
+              .disabled(model.currentDraftName == nil)
+            }
+
+            Toggle("Use Vercel auto-deploy on push", isOn: $model.useGitAutoDeploy)
+
+            DisclosureGroup("Advanced Publish Options", isExpanded: $showAdvanced) {
+              VStack(spacing: 8) {
+                TextField("Commit message", text: $model.commitMessage)
+                  .textFieldStyle(.roundedBorder)
+                HStack(spacing: 8) {
+                  Button("Commit + Push") { model.commitAndPush() }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isRunningAction)
+                  Button("Deploy Only") { model.deployToVercel() }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isRunningAction)
+                  Button("Open Local Site") { model.openLocalSite() }
+                    .buttonStyle(.bordered)
+                }
+              }
+              .padding(.top, 6)
+            }
+
+            if !model.statusMessage.isEmpty {
+              Text(model.statusMessage)
+                .font(.caption)
+                .foregroundStyle(model.statusMessage.lowercased().contains("failed") ? .red : .secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if !model.commandLog.isEmpty {
+              DisclosureGroup("Command Log", isExpanded: $showCommandLog) {
+                ScrollView {
+                  Text(model.commandLog)
+                    .font(.system(size: 12, weight: .regular, design: .monospaced))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(8)
+                }
+                .frame(minHeight: 140, maxHeight: 220)
+                .background(Color.black.opacity(0.06))
+                .cornerRadius(8)
+              }
+            }
           }
+          .padding(16)
         }
-        .frame(minHeight: 220)
       }
-      .padding(20)
     }
-    .frame(minWidth: 980, minHeight: 900)
+    .frame(minWidth: 1080, minHeight: 760)
+    .alert("Delete entry?", isPresented: Binding(get: { draftToDelete != nil }, set: { if !$0 { draftToDelete = nil } })) {
+      Button("Delete", role: .destructive) {
+        if let name = draftToDelete {
+          model.deleteDraft(named: name)
+        }
+        draftToDelete = nil
+      }
+      Button("Cancel", role: .cancel) {
+        draftToDelete = nil
+      }
+    } message: {
+      Text(draftToDelete ?? "")
+    }
   }
 }
 
