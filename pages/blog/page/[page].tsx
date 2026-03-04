@@ -1,64 +1,19 @@
-import { PageSEO } from '@/components/SEO'
-import siteMetadata from '@/data/siteMetadata'
-import MainLayout from '@/layouts/MainLayout'
-import ListLayout from '@/layouts/MDX/ListLayout'
-import { allCoreContent, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
-import { allBlogs } from 'contentlayer/generated'
-import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
-import { POSTS_PER_PAGE } from '../../blog'
+import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 
-export const getStaticPaths = async () => {
-  const totalPosts = sortedVisibleBlogPost(allBlogs)
-  const totalPages = Math.ceil(totalPosts.length / POSTS_PER_PAGE)
-  const paths = Array.from({ length: totalPages }, (_, i) => ({
-    params: { page: (i + 1).toString() },
-  }))
+type Params = { page: string }
 
+export const getServerSideProps: GetServerSideProps<{}, Params> = async (
+  context: GetServerSidePropsContext<Params>
+) => {
+  const page = context.params?.page || '1'
   return {
-    paths,
-    fallback: false,
-  }
-}
-
-export const getStaticProps = async (context: GetStaticPropsContext<{ page: string }>) => {
-  const page = context.params?.page
-  if (!page) {
-    return { notFound: true }
-  }
-  const posts = sortedVisibleBlogPost(allBlogs)
-  const pageNumber = parseInt(page as string)
-  const initialDisplayPosts = posts.slice(
-    POSTS_PER_PAGE * (pageNumber - 1),
-    POSTS_PER_PAGE * pageNumber
-  )
-  const pagination = {
-    currentPage: pageNumber,
-    totalPages: Math.ceil(posts.length / POSTS_PER_PAGE),
-  }
-
-  return {
-    props: {
-      initialDisplayPosts: allCoreContent(initialDisplayPosts),
-      posts: allCoreContent(posts),
-      pagination,
+    redirect: {
+      destination: `/journal/page/${page}`,
+      permanent: true,
     },
   }
 }
 
-export default function PostPage({
-  posts,
-  initialDisplayPosts,
-  pagination,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
-  return (
-    <MainLayout>
-      <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
-      <ListLayout
-        posts={posts}
-        initialDisplayPosts={initialDisplayPosts}
-        pagination={pagination}
-        title="All Posts"
-      />
-    </MainLayout>
-  )
+export default function LegacyBlogPagination() {
+  return null
 }

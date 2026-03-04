@@ -245,6 +245,8 @@ body.poetry-mode {
     radial-gradient(circle at 82% 14%, rgba(163, 177, 138, 0.24), transparent 34%),
     radial-gradient(circle at 78% 78%, rgba(190, 197, 160, 0.28), transparent 40%),
     linear-gradient(180deg, #f7f3e8 0%, #ece7d7 56%, #e4dcc9 100%);
+  position: relative;
+  overflow-x: hidden;
 }
 
 .dark body.poetry-mode {
@@ -256,6 +258,39 @@ body.poetry-mode {
     linear-gradient(180deg, #1d241b 0%, #232a20 48%, #1a2018 100%);
 }
 
+body.poetry-mode::before,
+body.poetry-mode::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.poetry-mode::before {
+  opacity: 0.34;
+  background-image:
+    radial-gradient(ellipse 14px 8px at 10% -5%, rgba(131, 159, 96, 0.26) 0%, transparent 72%),
+    radial-gradient(ellipse 12px 7px at 30% -8%, rgba(165, 128, 92, 0.22) 0%, transparent 72%),
+    radial-gradient(ellipse 16px 9px at 55% -10%, rgba(112, 145, 82, 0.24) 0%, transparent 72%),
+    radial-gradient(ellipse 13px 8px at 75% -6%, rgba(147, 120, 86, 0.2) 0%, transparent 72%),
+    radial-gradient(ellipse 12px 7px at 92% -7%, rgba(116, 141, 87, 0.24) 0%, transparent 72%);
+  background-size: 26% 180%, 24% 190%, 28% 200%, 25% 185%, 22% 195%;
+  background-position: 4% -18%, 26% -22%, 52% -28%, 76% -20%, 95% -24%;
+  animation: leaf-fall 18s linear infinite;
+}
+
+body.poetry-mode::after {
+  opacity: 0.14;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.45), transparent 40%),
+    radial-gradient(circle at 68% 68%, rgba(255, 255, 255, 0.24), transparent 45%);
+}
+
+.dark body.poetry-mode::before {
+  opacity: 0.26;
+}
+
 body.poetry-mode .apple-nav {
   border-color: rgba(120, 137, 100, 0.35);
   background: rgba(247, 243, 232, 0.78);
@@ -264,6 +299,72 @@ body.poetry-mode .apple-nav {
 .dark body.poetry-mode .apple-nav {
   border-color: rgba(148, 166, 125, 0.3);
   background: rgba(34, 43, 31, 0.75);
+}
+
+body.poetry-mode .apple-nav-link {
+  color: #3e4d2f;
+}
+
+body.poetry-mode .apple-nav-link:hover {
+  background: rgba(111, 128, 92, 0.16);
+  color: #25331f;
+}
+
+body.poetry-mode .apple-nav-link-active {
+  background: #6f805c;
+  color: #f6f1e4;
+}
+
+.dark body.poetry-mode .apple-nav-link {
+  color: #d8d1bd;
+}
+
+.dark body.poetry-mode .apple-nav-link:hover {
+  background: rgba(140, 160, 116, 0.22);
+  color: #f2ecdc;
+}
+
+.dark body.poetry-mode .apple-nav-link-active {
+  background: #7f9468;
+  color: #182012;
+}
+
+body.poetry-mode .apple-button-primary {
+  background: #6f805c;
+  color: #f8f3e8;
+}
+
+body.poetry-mode .apple-button-primary:hover {
+  background: #5d6d4d;
+}
+
+body.poetry-mode .apple-button-secondary {
+  border-color: rgba(116, 132, 97, 0.35);
+  background: rgba(248, 243, 232, 0.8);
+  color: #38462b;
+}
+
+body.poetry-mode .apple-button-secondary:hover {
+  background: rgba(244, 237, 222, 0.94);
+}
+
+.dark body.poetry-mode .apple-button-primary {
+  background: #7e9367;
+  color: #172012;
+}
+
+.dark body.poetry-mode .apple-button-primary:hover {
+  background: #90a978;
+}
+
+.dark body.poetry-mode .apple-button-secondary {
+  border-color: rgba(126, 144, 106, 0.45);
+  background: rgba(39, 48, 34, 0.82);
+  color: #e7dfc9;
+}
+
+.dark body.poetry-mode .apple-button-secondary:hover {
+  background: rgba(49, 60, 43, 0.9);
 }
 
 body.poetry-mode .rave-tile {
@@ -283,6 +384,245 @@ body.poetry-mode .rave-tile:hover {
     linear-gradient(145deg, rgba(40, 49, 36, 0.85), rgba(28, 35, 26, 0.78)),
     radial-gradient(circle at 30% 20%, rgba(125, 150, 112, 0.2), transparent 58%);
   border-color: rgba(122, 142, 106, 0.35);
+}
+
+body.poetry-mode .apple-glass-card {
+  border-color: rgba(119, 137, 99, 0.35);
+  background: rgba(247, 243, 232, 0.72);
+}
+
+.dark body.poetry-mode .apple-glass-card {
+  border-color: rgba(129, 146, 109, 0.32);
+  background: rgba(33, 42, 30, 0.72);
+}
+
+body.music-mode {
+  color: #2f1f17;
+  background:
+    radial-gradient(circle at 16% 14%, rgba(255, 160, 64, 0.28), transparent 34%),
+    radial-gradient(circle at 86% 14%, rgba(255, 118, 76, 0.22), transparent 36%),
+    radial-gradient(circle at 74% 72%, rgba(156, 102, 68, 0.25), transparent 40%),
+    linear-gradient(180deg, #2b1a14 0%, #4a2f21 36%, #7a4d2d 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.dark body.music-mode {
+  color: #f6dac7;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(255, 132, 74, 0.24), transparent 34%),
+    radial-gradient(circle at 82% 14%, rgba(196, 88, 148, 0.22), transparent 35%),
+    radial-gradient(circle at 74% 74%, rgba(136, 82, 54, 0.24), transparent 40%),
+    linear-gradient(180deg, #160f0b 0%, #26180f 36%, #3b2416 100%);
+}
+
+body.music-mode::before,
+body.music-mode::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.music-mode::before {
+  opacity: 0.22;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 189, 126, 0.26) 0 2px,
+      rgba(255, 189, 126, 0) 2px 44px
+    ),
+    linear-gradient(115deg, rgba(255, 188, 120, 0.1), rgba(255, 93, 177, 0.08));
+  mix-blend-mode: screen;
+}
+
+body.music-mode::after {
+  opacity: 0.2;
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 224, 163, 0.34), transparent 26%),
+    radial-gradient(circle at 40% -12%, rgba(255, 151, 95, 0.3), transparent 25%),
+    radial-gradient(circle at 66% -10%, rgba(238, 117, 168, 0.3), transparent 24%),
+    radial-gradient(circle at 92% -8%, rgba(255, 176, 88, 0.32), transparent 25%);
+  background-size: 26% 180%;
+  background-position: 8% -18%, 34% -22%, 64% -20%, 92% -24%;
+  animation: disco-rain 14s linear infinite;
+}
+
+body.music-mode .apple-nav {
+  border-color: rgba(255, 197, 146, 0.34);
+  background: rgba(55, 34, 24, 0.72);
+}
+
+.dark body.music-mode .apple-nav {
+  border-color: rgba(255, 170, 118, 0.35);
+  background: rgba(29, 18, 12, 0.78);
+}
+
+body.music-mode .apple-nav-link {
+  color: #f7d2bd;
+}
+
+body.music-mode .apple-nav-link:hover {
+  background: rgba(255, 156, 92, 0.22);
+  color: #fff2e8;
+}
+
+body.music-mode .apple-nav-link-active {
+  background: linear-gradient(120deg, #ff8f5b, #d45da5);
+  color: #fff6ef;
+}
+
+body.music-mode .apple-button-primary {
+  background: linear-gradient(120deg, #ff9058, #cf5ba8);
+  color: #fff7f0;
+}
+
+body.music-mode .apple-button-primary:hover {
+  background: linear-gradient(120deg, #ff7f45, #c3489a);
+}
+
+body.music-mode .apple-button-secondary {
+  border-color: rgba(255, 190, 136, 0.4);
+  background: rgba(66, 41, 30, 0.75);
+  color: #f8d6c1;
+}
+
+body.music-mode .apple-button-secondary:hover {
+  background: rgba(82, 51, 36, 0.86);
+}
+
+body.music-mode .apple-glass-card {
+  border-color: rgba(255, 191, 138, 0.33);
+  background: rgba(59, 38, 28, 0.7);
+}
+
+body.music-mode .rave-tile {
+  background:
+    linear-gradient(145deg, rgba(89, 52, 37, 0.84), rgba(61, 37, 28, 0.74)),
+    radial-gradient(circle at 30% 20%, rgba(255, 155, 95, 0.24), transparent 56%);
+  border-color: rgba(255, 176, 114, 0.38);
+}
+
+body.music-mode .rave-tile:hover {
+  border-color: rgba(255, 128, 186, 0.58);
+  box-shadow: 0 20px 40px -30px rgba(255, 127, 78, 0.8);
+}
+
+body.project-mode {
+  color: #d8f6ff;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(0, 194, 255, 0.22), transparent 32%),
+    radial-gradient(circle at 84% 12%, rgba(0, 109, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 74% 74%, rgba(0, 238, 202, 0.16), transparent 36%),
+    linear-gradient(180deg, #040a13 0%, #050f1c 48%, #071522 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.dark body.project-mode {
+  color: #c3f8ff;
+}
+
+body.project-mode::before,
+body.project-mode::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.project-mode::before {
+  opacity: 0.24;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(35, 79, 111, 0.34) 0 1px,
+      rgba(35, 79, 111, 0) 1px 38px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(35, 79, 111, 0.28) 0 1px,
+      rgba(35, 79, 111, 0) 1px 42px
+    );
+}
+
+body.project-mode::after {
+  opacity: 0.52;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 5%,
+      rgba(0, 198, 255, 0.65) 5.2% 5.5%,
+      transparent 5.7% 21%,
+      rgba(0, 235, 169, 0.48) 21.2% 21.45%,
+      transparent 21.7% 42%,
+      rgba(0, 153, 255, 0.62) 42.2% 42.5%,
+      transparent 42.8% 63%,
+      rgba(0, 220, 255, 0.56) 63.2% 63.45%,
+      transparent 63.8% 84%,
+      rgba(0, 255, 209, 0.54) 84.2% 84.5%,
+      transparent 84.8% 100%
+    );
+  background-size: 240% 240%;
+  animation: pcb-flow 8.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 194, 255, 0.5));
+}
+
+body.project-mode .apple-nav {
+  border-color: rgba(0, 170, 255, 0.33);
+  background: rgba(7, 18, 31, 0.76);
+}
+
+body.project-mode .apple-nav-link {
+  color: #8ee8ff;
+}
+
+body.project-mode .apple-nav-link:hover {
+  background: rgba(0, 126, 255, 0.2);
+  color: #d8fbff;
+}
+
+body.project-mode .apple-nav-link-active {
+  background: linear-gradient(120deg, #00b5ff, #00e1ad);
+  color: #04131c;
+}
+
+body.project-mode .apple-button-primary {
+  background: linear-gradient(120deg, #00c7ff, #00e0b1);
+  color: #03131b;
+}
+
+body.project-mode .apple-button-primary:hover {
+  background: linear-gradient(120deg, #00aee0, #00c99f);
+}
+
+body.project-mode .apple-button-secondary {
+  border-color: rgba(0, 179, 255, 0.4);
+  background: rgba(5, 22, 35, 0.78);
+  color: #9cefff;
+}
+
+body.project-mode .apple-button-secondary:hover {
+  background: rgba(9, 30, 47, 0.9);
+}
+
+body.project-mode .apple-glass-card {
+  border-color: rgba(0, 182, 255, 0.34);
+  background: rgba(8, 25, 38, 0.68);
+}
+
+body.project-mode .rave-tile {
+  background:
+    linear-gradient(145deg, rgba(8, 31, 45, 0.83), rgba(4, 18, 30, 0.78)),
+    radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.18), transparent 55%);
+  border-color: rgba(0, 178, 255, 0.34);
+}
+
+body.project-mode .rave-tile:hover {
+  border-color: rgba(0, 244, 204, 0.58);
+  box-shadow: 0 20px 40px -28px rgba(0, 201, 255, 0.75);
 }
 
 @keyframes rave-shift-left {
@@ -318,6 +658,39 @@ body.poetry-mode .rave-tile:hover {
   100% {
     left: 118%;
     opacity: 0;
+  }
+}
+
+@keyframes leaf-fall {
+  0% {
+    background-position: 4% -18%, 26% -22%, 52% -28%, 76% -20%, 95% -24%;
+  }
+  100% {
+    background-position: 4% 128%, 26% 122%, 52% 118%, 76% 126%, 95% 120%;
+  }
+}
+
+@keyframes disco-rain {
+  0% {
+    background-position: 8% -18%, 34% -22%, 64% -20%, 92% -24%;
+  }
+  100% {
+    background-position: 8% 132%, 34% 126%, 64% 128%, 92% 124%;
+  }
+}
+
+@keyframes pcb-flow {
+  0% {
+    background-position: 0% 0%;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    background-position: 100% 100%;
+    transform: translate3d(0, -2px, 0);
+  }
+  100% {
+    background-position: 200% 200%;
+    transform: translate3d(0, 0, 0);
   }
 }
 

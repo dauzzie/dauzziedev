@@ -26,7 +26,7 @@ export default function PostLayout({ content, authorDetails, children, next, pre
   const { slug, date, title, author, readingTime, tags } = content
   const normalizedTags = tags?.map((tag) => kebabCase(tag)) ?? []
   const isPoetry = normalizedTags.includes('poetry') || normalizedTags.includes('poem')
-  const contentRoute = isPoetry ? 'poetry' : 'blog'
+  const contentRoute = isPoetry ? 'poetry' : 'journal'
 
   return (
     <>
@@ -67,7 +67,7 @@ export default function PostLayout({ content, authorDetails, children, next, pre
               <PostNavigation
                 prev={prev}
                 next={next}
-                routePrefix={isPoetry ? '/poetry' : '/blog'}
+                routePrefix={isPoetry ? '/poetry' : '/journal'}
               />
               <PostComments />
             </div>

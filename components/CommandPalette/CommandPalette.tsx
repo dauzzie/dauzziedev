@@ -55,7 +55,7 @@ export default function CommandPalette() {
             ))}
           </Command.Group>
 
-          <Command.Group heading="Blogs">
+          <Command.Group heading="Journal">
             {blogOptions.map(({ id, name, onSelect, icon }) => (
               <CommandItem
                 id={id}

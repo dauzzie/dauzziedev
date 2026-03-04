@@ -31,7 +31,7 @@ open Package.swift
 - Loads existing drafts for editing
 - Saves modifications to existing drafts
 - Deletes selected drafts
-- Supports post type selection: `Blog`, `Poem`
+- Supports post type selection: `Journal`, `Poem`, `Music`, `Project`
 - Shows a rotating daily writing prompt
 - Lists latest draft files
 - Syncs latest content from GitHub (`git fetch` + `git pull --ff-only`)

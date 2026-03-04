@@ -55,10 +55,10 @@ export default function CareerHub({ posts }: CareerHubProps) {
               Story Hub
             </p>
             <h3 className="mt-2 text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-              Engineering posts and poems from the build process.
+              Engineering journal entries and poems from the build process.
             </h3>
           </div>
-          <Link href="/blog" className="apple-button-secondary w-max">
+          <Link href="/journal" className="apple-button-secondary w-max">
             Browse all writing
           </Link>
         </div>
@@ -72,7 +72,7 @@ export default function CareerHub({ posts }: CareerHubProps) {
               transition={{ duration: 0.45, ease: 'easeOut' }}
             >
               <Link
-                href={`/blog/${post.slug}`}
+                href={`/journal/${post.slug}`}
                 className="rave-tile group block rounded-2xl p-4 transition"
               >
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -138,8 +138,8 @@ export default function CareerHub({ posts }: CareerHubProps) {
               Local Companion
             </p>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              Use the macOS writer app in `macos/DauzzieWriter` to create blog and poem drafts
-              directly into this website.
+              Use the macOS writer app in `macos/DauzzieWriter` to create journal and poetry
+              drafts directly into this website.
             </p>
           </div>
           <Link href="/about" className="apple-button-primary mt-6 w-max">

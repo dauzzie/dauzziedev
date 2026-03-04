@@ -1,4 +1,5 @@
 import CareerHub from '@/components/Hub/CareerHub'
+import ProjectsSpotlight from '@/components/Hub/ProjectsSpotlight'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import SectionContainer from '@/components/SectionContainer'
@@ -26,6 +27,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
       <Hero />
       <HomeLayout>
         <CareerHub posts={posts} />
+        <ProjectsSpotlight />
       </HomeLayout>
     </>
   )

@@ -9,7 +9,7 @@ interface Props {
   title: string
   initialDisplayPosts?: CoreContent<Blog>[]
   pagination?: ComponentProps<typeof Pagination>
-  linkPrefix?: '/blog' | '/poetry'
+  linkPrefix?: '/journal' | '/poetry'
 }
 
 export default function ListLayout({
@@ -17,7 +17,7 @@ export default function ListLayout({
   title,
   initialDisplayPosts = [],
   pagination,
-  linkPrefix = '/blog',
+  linkPrefix = '/journal',
 }: Props) {
   const [searchValue, setSearchValue] = useState('')
   const filteredBlogPosts = posts.filter((post) => {

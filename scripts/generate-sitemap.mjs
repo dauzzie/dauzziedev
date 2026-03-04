@@ -14,7 +14,7 @@ async function generate() {
   const posts = [...allBlogs, ...allPoems]
   const contentPages = posts.flatMap((post) => {
     if (post.draft || post.canonicalUrl) return []
-    const routePrefix = isPoetry(post) ? '/poetry' : '/blog'
+    const routePrefix = isPoetry(post) ? '/poetry' : '/journal'
     return [`${routePrefix}/${post.slug}`]
   })
   const pages = await globby([

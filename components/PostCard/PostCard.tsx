@@ -7,10 +7,14 @@ import Link from 'next/link'
 export interface PostCardProps {
   posts: CoreContent<Blog>[]
   showTags?: boolean
-  linkPrefix?: '/blog' | '/poetry'
+  linkPrefix?: '/journal' | '/poetry'
 }
 
-export default function PostCard({ posts, showTags = true, linkPrefix = '/blog' }: PostCardProps) {
+export default function PostCard({
+  posts,
+  showTags = true,
+  linkPrefix = '/journal',
+}: PostCardProps) {
   return (
     <ul>
       {posts.map(({ slug, title, tags, summary }, index) => (

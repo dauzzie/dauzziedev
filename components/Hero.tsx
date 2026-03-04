@@ -45,8 +45,8 @@ export default function Hero(): ReactElement {
               {siteMetadata.slogan}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/blog" className="apple-button-primary">
-                Enter Story Hub
+              <Link href="/journal" className="apple-button-primary">
+                Enter Journal
               </Link>
               <Link href="/about" className="apple-button-secondary">
                 Career Timeline

@@ -4,8 +4,10 @@ import Security
 import SwiftUI
 
 enum PostCategory: String, CaseIterable, Identifiable {
-  case blog = "Blog"
+  case blog = "Journal"
   case poem = "Poem"
+  case music = "Music"
+  case project = "Project"
 
   var id: String { rawValue }
 
@@ -15,6 +17,10 @@ enum PostCategory: String, CaseIterable, Identifiable {
       return ["engineering", "career"]
     case .poem:
       return ["poetry", "creative"]
+    case .music:
+      return ["music", "culture"]
+    case .project:
+      return ["project", "build-log"]
     }
   }
 
@@ -23,7 +29,63 @@ enum PostCategory: String, CaseIterable, Identifiable {
     if normalized.contains("poetry") || normalized.contains("poem") {
       return .poem
     }
+    if normalized.contains("music") || normalized.contains("playlist") {
+      return .music
+    }
+    if normalized.contains("project") || normalized.contains("build-log") {
+      return .project
+    }
     return .blog
+  }
+}
+
+enum WidgetSnippet: String, CaseIterable, Identifiable {
+  case quote = "Quote Block"
+  case callout = "Callout Box"
+  case youtube = "YouTube Embed"
+  case spotify = "Spotify Embed"
+  case divider = "Section Divider"
+
+  var id: String { rawValue }
+
+  var template: String {
+    switch self {
+    case .quote:
+      return "> Replace this with a meaningful quote."
+    case .callout:
+      return """
+      <div className="apple-glass-card p-4">
+      A grounding note or key insight for this section.
+      </div>
+      """
+    case .youtube:
+      return """
+      <iframe
+        width="100%"
+        height="420"
+        src="https://www.youtube.com/embed/VIDEO_ID"
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+      """
+    case .spotify:
+      return """
+      <iframe
+        style={{ borderRadius: '12px' }}
+        src="https://open.spotify.com/embed/track/TRACK_ID"
+        width="100%"
+        height="152"
+        frameBorder="0"
+        allowFullScreen
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+      />
+      """
+    case .divider:
+      return "---"
+    }
   }
 }
 
@@ -44,6 +106,7 @@ struct ParsedDraft {
   let summary: String
   let author: String
   let tags: [String]
+  let images: [String]
   let body: String
 }
 
@@ -61,6 +124,7 @@ struct EditorSnapshot: Equatable {
   let author: String
   let postDate: String
   let tags: [String]
+  let images: [String]
 }
 
 @MainActor
@@ -75,6 +139,10 @@ final class WriterViewModel: ObservableObject {
   @Published var selectedTags: [String] = ["engineering", "career"]
   @Published var newCategoryInput = ""
   @Published var availableCategories: [String] = []
+  @Published var imagePaths: [String] = []
+  @Published var newImageInput = ""
+  @Published var resourceTitleInput = ""
+  @Published var resourceURLInput = ""
   @Published var currentDraftName: String? = nil
 
   @Published var statusMessage = ""
@@ -97,14 +165,15 @@ final class WriterViewModel: ObservableObject {
     body: "",
     author: "Muhamad Firdaus Husaini",
     postDate: "",
-    tags: ["engineering", "career"]
+    tags: ["engineering", "career"],
+    images: []
   )
 
   private let prompts = [
     "Write about one hard engineering decision you made recently.",
     "Draft a poem about software, pressure, and patience.",
-    "Tell a short story from your deployment war-room moments.",
-    "Write a career checkpoint: what changed this month and why.",
+    "Break down one music track or artist that shaped your week.",
+    "Write a project build log: problem, decision, next milestone.",
     "Document one automation that saved your team time this week.",
   ]
 
@@ -192,6 +261,10 @@ final class WriterViewModel: ObservableObject {
     postDate = todayDateString()
     selectedPostType = .blog
     selectedTags = PostCategory.blog.defaultTags
+    imagePaths = []
+    newImageInput = ""
+    resourceTitleInput = ""
+    resourceURLInput = ""
     newCategoryInput = ""
     statusMessage = "New post editor ready."
     markCurrentStateAsSaved()
@@ -219,6 +292,7 @@ final class WriterViewModel: ObservableObject {
       postDate = parsed.date
       selectedPostType = name.hasPrefix("poetry/") ? .poem : PostCategory.from(tags: parsed.tags)
       selectedTags = parsed.tags.isEmpty ? selectedPostType.defaultTags : parsed.tags
+      imagePaths = parsed.images
       applyPostTypeSelection(selectedPostType)
       statusMessage = "Loaded: \(name)"
       markCurrentStateAsSaved()
@@ -361,6 +435,57 @@ final class WriterViewModel: ObservableObject {
     refreshDirtyState()
   }
 
+  func addImageFromInput() {
+    addImage(newImageInput)
+    newImageInput = ""
+  }
+
+  func addImage(_ raw: String) {
+    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    if !imagePaths.contains(trimmed) {
+      imagePaths.append(trimmed)
+      refreshDirtyState()
+    }
+  }
+
+  func removeImage(_ path: String) {
+    imagePaths.removeAll { $0 == path }
+    refreshDirtyState()
+  }
+
+  func insertImageMarkdown() {
+    let path = newImageInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !path.isEmpty else {
+      statusMessage = "Enter image URL or path first."
+      return
+    }
+
+    addImage(path)
+    appendToBody("\n\n![Image](\(path))\n")
+    newImageInput = ""
+    statusMessage = "Image markdown inserted."
+  }
+
+  func insertResourceLink() {
+    let title = resourceTitleInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    let url = resourceURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !title.isEmpty, !url.isEmpty else {
+      statusMessage = "Resource needs both title and URL."
+      return
+    }
+
+    appendToBody("\n\n- [\(title)](\(url))\n")
+    resourceTitleInput = ""
+    resourceURLInput = ""
+    statusMessage = "Resource link inserted."
+  }
+
+  func insertWidget(_ widget: WidgetSnippet) {
+    appendToBody("\n\n\(widget.template)\n")
+    statusMessage = "Inserted \(widget.rawValue)."
+  }
+
   func applyPostTypeSelection(_ type: PostCategory) {
     selectedPostType = type
     let normalized = Set(selectedTags.map { normalizeCategory($0) })
@@ -373,10 +498,26 @@ final class WriterViewModel: ObservableObject {
       if normalized == Set(PostCategory.blog.defaultTags.map { normalizeCategory($0) }) {
         selectedTags = PostCategory.poem.defaultTags
       }
+    case .music:
+      selectedTags.removeAll {
+        let value = normalizeCategory($0)
+        return value == "poetry" || value == "poem" || value == "project"
+      }
+      if selectedTags.isEmpty || selectedTags == PostCategory.blog.defaultTags {
+        selectedTags = PostCategory.music.defaultTags
+      }
+    case .project:
+      selectedTags.removeAll {
+        let value = normalizeCategory($0)
+        return value == "poetry" || value == "poem" || value == "music"
+      }
+      if selectedTags.isEmpty || selectedTags == PostCategory.blog.defaultTags {
+        selectedTags = PostCategory.project.defaultTags
+      }
     case .blog:
       selectedTags.removeAll {
         let value = normalizeCategory($0)
-        return value == "poetry" || value == "poem"
+        return value == "poetry" || value == "poem" || value == "music" || value == "project"
       }
       if selectedTags.isEmpty {
         selectedTags = PostCategory.blog.defaultTags
@@ -558,6 +699,7 @@ final class WriterViewModel: ObservableObject {
       finalTags.insert(typeTag, at: 0)
     }
     let tags = finalTags.map { "'\($0)'" }.joined(separator: ", ")
+    let images = imagePaths.map { "'\($0)'" }.joined(separator: ", ")
     let fallbackSummary = summary.isEmpty ? "New writing draft." : summary
     let draftBody = body.isEmpty ? "Start writing..." : body
 
@@ -568,7 +710,7 @@ final class WriterViewModel: ObservableObject {
     tags: [\(tags)]
     draft: false
     summary: "\(fallbackSummary)"
-    images: []
+    images: [\(images)]
     layout: PostLayout
     author: "\(author)"
     ---
@@ -617,8 +759,17 @@ final class WriterViewModel: ObservableObject {
     let summary = value(for: "summary", in: frontmatter) ?? ""
     let author = value(for: "author", in: frontmatter) ?? "Muhamad Firdaus Husaini"
     let tags = tagsValue(in: frontmatter)
+    let images = listValue(for: "images", in: frontmatter)
 
-    return ParsedDraft(title: title, date: date, summary: summary, author: author, tags: tags, body: bodyPart)
+    return ParsedDraft(
+      title: title,
+      date: date,
+      summary: summary,
+      author: author,
+      tags: tags,
+      images: images,
+      body: bodyPart
+    )
   }
 
   private func value(for key: String, in frontmatter: String) -> String? {
@@ -632,7 +783,11 @@ final class WriterViewModel: ObservableObject {
   }
 
   private func tagsValue(in frontmatter: String) -> [String] {
-    guard let raw = value(for: "tags", in: frontmatter) else { return [] }
+    listValue(for: "tags", in: frontmatter)
+  }
+
+  private func listValue(for key: String, in frontmatter: String) -> [String] {
+    guard let raw = value(for: key, in: frontmatter) else { return [] }
     let trimmed = raw.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
     if trimmed.isEmpty { return [] }
 
@@ -641,6 +796,16 @@ final class WriterViewModel: ObservableObject {
       .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
       .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "\"'")) }
       .filter { !$0.isEmpty }
+  }
+
+  private func appendToBody(_ content: String) {
+    let existing = body.trimmingCharacters(in: .newlines)
+    if existing.isEmpty {
+      body = content.trimmingCharacters(in: .newlines)
+    } else {
+      body += content
+    }
+    refreshDirtyState()
   }
 
   private func normalizedDate(_ input: String) -> String {
@@ -679,7 +844,8 @@ final class WriterViewModel: ObservableObject {
       body: body,
       author: author,
       postDate: postDate,
-      tags: normalizedTags
+      tags: normalizedTags,
+      images: imagePaths.sorted()
     )
   }
 
@@ -1097,6 +1263,14 @@ private struct ContentView: View {
               Text("Poem posts publish to /poetry (password-gated).")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            } else if model.selectedPostType == .music {
+              Text("Music posts publish as tagged entries and can embed Spotify/YouTube widgets.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            } else if model.selectedPostType == .project {
+              Text("Project posts publish as build logs. Add resources and screenshots below.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
 
             HStack(spacing: 12) {
@@ -1143,6 +1317,61 @@ private struct ContentView: View {
                   }
                 }
               }
+            }
+
+            DisclosureGroup("Media, Resources & Widgets") {
+              VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                  TextField("Image URL or /static path", text: $model.newImageInput)
+                    .textFieldStyle(.roundedBorder)
+                  Button("Add") { model.addImageFromInput() }
+                    .buttonStyle(.bordered)
+                  Button("Insert MD") { model.insertImageMarkdown() }
+                    .buttonStyle(.bordered)
+                }
+
+                if !model.imagePaths.isEmpty {
+                  ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                      ForEach(model.imagePaths, id: \.self) { imagePath in
+                        HStack(spacing: 4) {
+                          Text(imagePath)
+                            .font(.caption2)
+                            .lineLimit(1)
+                          Button {
+                            model.removeImage(imagePath)
+                          } label: {
+                            Image(systemName: "xmark.circle.fill")
+                              .font(.caption2)
+                          }
+                          .buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue.opacity(0.12))
+                        .clipShape(Capsule())
+                      }
+                    }
+                  }
+                }
+
+                HStack(spacing: 8) {
+                  TextField("Resource title", text: $model.resourceTitleInput)
+                    .textFieldStyle(.roundedBorder)
+                  TextField("Resource URL", text: $model.resourceURLInput)
+                    .textFieldStyle(.roundedBorder)
+                  Button("Insert Resource") { model.insertResourceLink() }
+                    .buttonStyle(.bordered)
+                }
+
+                Menu("Insert Widget Snippet") {
+                  ForEach(WidgetSnippet.allCases) { widget in
+                    Button(widget.rawValue) { model.insertWidget(widget) }
+                  }
+                }
+                .buttonStyle(.bordered)
+              }
+              .padding(.top, 6)
             }
 
             TextEditor(text: $model.body)
