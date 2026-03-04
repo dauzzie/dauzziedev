@@ -21,27 +21,29 @@ export default function PostCard({ posts, showTags = true, linkPrefix = '/blog' 
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, delay: index / 10 }}
         >
-          <Link href={`${linkPrefix}/${slug}`} aria-label={`Read "${title}"`} legacyBehavior>
-            <article className="space-y-2 gap-3 xl:grid xl:grid-cols-4 xl:space-y-0 xl:items-baseline bg-opacity-20 py-5 cursor-pointer">
-              <div className="space-y-3 xl:col-span-4">
-                <span className="text-2xl font-bold leading-8 tracking-tight">
-                  <Link href={`${linkPrefix}/${slug}`} legacyBehavior>
-                    <span className="text-primary-500 hover:text-primary-400 duration-300">
-                      {title}
-                    </span>
-                  </Link>
-                </span>
-                {showTags && tags && (
-                  <div className="flex flex-wrap gap-3">
-                    {tags.map((tag) => (
-                      <Tag key={tag} text={tag} />
-                    ))}
-                  </div>
-                )}
-                <div className="prose text-gray-900 dark:text-gray-100 max-w-none">{summary}</div>
+          <article className="space-y-2 gap-3 xl:grid xl:grid-cols-4 xl:space-y-0 xl:items-baseline bg-opacity-20 py-5">
+            <div className="space-y-3 xl:col-span-4">
+              <h2 className="text-2xl font-bold leading-8 tracking-tight">
+                <Link
+                  href={`${linkPrefix}/${slug}`}
+                  aria-label={`Read "${title}"`}
+                  className="text-primary-500 hover:text-primary-400 duration-300"
+                >
+                  {title}
+                </Link>
+              </h2>
+              {showTags && tags && (
+                <div className="flex flex-wrap gap-3">
+                  {tags.map((tag) => (
+                    <Tag key={tag} text={tag} />
+                  ))}
+                </div>
+              )}
+              <div className="prose text-gray-900 dark:text-gray-100 max-w-none">
+                {summary}
               </div>
-            </article>
-          </Link>
+            </div>
+          </article>
         </motion.li>
       ))}
     </ul>
