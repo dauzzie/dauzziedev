@@ -3,7 +3,7 @@ import path from 'path'
 import GithubSlugger from 'github-slugger'
 import { escape } from './htmlEscaper.mjs'
 import siteMetadata from '../data/siteMetadata.js'
-import { allBlogs } from '../.contentlayer/generated/index.mjs'
+import { allBlogs, allPoems } from '../.contentlayer/generated/index.mjs'
 
 const isPoetry = (post) => {
   const tags = (post.tags || []).map((tag) => GithubSlugger.slug(tag))
@@ -58,12 +58,20 @@ const generateRss = (posts, page = 'feed.xml') => `
 `
 
 async function generate() {
-  const publicBlogPosts = allBlogs.filter((post) => post.draft !== true && !isPoetry(post))
+  const publicBlogPosts = allBlogs.filter((post) => post.draft !== true)
+  const publicPoemPosts = allPoems.filter((post) => post.draft !== true)
 
   // RSS for blog post
   if (publicBlogPosts.length > 0) {
     const rss = generateRss(publicBlogPosts)
     writeFileSync('./public/feed.xml', rss)
+  }
+
+  if (publicPoemPosts.length > 0) {
+    const poetryRss = generateRss(publicPoemPosts, 'poetry/feed.xml')
+    const poetryPath = path.join('public', 'poetry')
+    mkdirSync(poetryPath, { recursive: true })
+    writeFileSync(path.join(poetryPath, 'feed.xml'), poetryRss)
   }
 
   // RSS for tags

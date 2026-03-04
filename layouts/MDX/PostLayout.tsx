@@ -5,7 +5,7 @@ import { BlogSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
 import kebabCase from '@/lib/utils/kebabCase'
 import { CoreContent } from '@/lib/utils/contentlayer'
-import type { Authors, Blog } from 'contentlayer/generated'
+import type { Authors, Blog, Poem } from 'contentlayer/generated'
 import { ReactNode } from 'react'
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
@@ -15,7 +15,7 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 }
 
 interface Props {
-  content: CoreContent<Blog>
+  content: CoreContent<Blog | Poem>
   authorDetails: CoreContent<Authors>
   children: ReactNode
   next?: { slug: string; title: string }

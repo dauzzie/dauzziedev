@@ -1,6 +1,6 @@
 import siteMetadata from '@/data/siteMetadata'
 import { CoreContent } from '@/lib/utils/contentlayer'
-import type { Authors, Blog } from 'contentlayer/generated'
+import type { Authors, Blog, Poem } from 'contentlayer/generated'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 
@@ -70,7 +70,7 @@ export const TagSEO = ({ title, description }: PageSEOProps) => {
   )
 }
 
-interface BlogSeoProps extends CoreContent<Blog> {
+interface BlogSeoProps extends CoreContent<Blog | Poem> {
   authorDetails?: CoreContent<Authors>
   url: string
 }

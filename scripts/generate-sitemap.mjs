@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs'
 import globby from 'globby'
 import prettier from 'prettier'
 import siteMetadata from '../data/siteMetadata.js'
-import { allBlogs } from '../.contentlayer/generated/index.mjs'
+import { allBlogs, allPoems } from '../.contentlayer/generated/index.mjs'
 
 const isPoetry = (post) => {
   const tags = (post.tags || []).map((tag) => String(tag).toLowerCase())
@@ -11,7 +11,8 @@ const isPoetry = (post) => {
 
 async function generate() {
   const prettierConfig = await prettier.resolveConfig('./.prettierrc.js')
-  const contentPages = allBlogs.flatMap((post) => {
+  const posts = [...allBlogs, ...allPoems]
+  const contentPages = posts.flatMap((post) => {
     if (post.draft || post.canonicalUrl) return []
     const routePrefix = isPoetry(post) ? '/poetry' : '/blog'
     return [`${routePrefix}/${post.slug}`]

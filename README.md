@@ -73,7 +73,7 @@ POETRY_ACCESS_TOKEN=another-long-random-token
 ## 3) Content Workflow
 
 - Blog posts: `data/blog/*.mdx`
-- Poetry posts: `data/blog/*.mdx` (tagged with `poetry`, shown under `/poetry`)
+- Poetry posts: `data/poetry/*.mdx`
 - About/career content: `data/authors/default.mdx`
 - Site identity/slogan/socials: `data/siteMetadata.js`
 

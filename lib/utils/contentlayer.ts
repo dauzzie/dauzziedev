@@ -1,5 +1,5 @@
 import kebabCase from '@/lib/utils/kebabCase'
-import type { Blog, DocumentTypes } from 'contentlayer/generated'
+import type { Blog, DocumentTypes, Poem } from 'contentlayer/generated'
 
 export function dateSortDesc(a: string, b: string) {
   if (a > b) return -1
@@ -11,7 +11,9 @@ export function sortedBlogPost(allBlogs: Blog[]) {
   return allBlogs.sort((a, b) => dateSortDesc(a.date, b.date)).filter((p) => p.draft === false)
 }
 
-export function isPoetryPost(post: Pick<Blog, 'tags'>) {
+type PostWithTags = Pick<Blog, 'tags'> | Pick<Poem, 'tags'>
+
+export function isPoetryPost(post: PostWithTags) {
   const tags = post.tags?.map((tag) => kebabCase(tag)) ?? []
   return tags.includes('poetry') || tags.includes('poem')
 }
@@ -22,6 +24,10 @@ export function sortedVisibleBlogPost(allBlogs: Blog[]) {
 
 export function sortedPoetryPost(allBlogs: Blog[]) {
   return sortedBlogPost(allBlogs).filter((post) => isPoetryPost(post))
+}
+
+export function sortedPoemPost(allPoems: Poem[]) {
+  return allPoems.sort((a, b) => dateSortDesc(a.date, b.date)).filter((p) => p.draft === false)
 }
 
 type ConvertUndefined<T> = OrNull<{

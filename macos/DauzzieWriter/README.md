@@ -27,7 +27,7 @@ open Package.swift
 
 ## What it does
 
-- Creates MDX drafts in `data/blog/`
+- Creates MDX drafts in `data/blog/` and `data/poetry/`
 - Loads existing drafts for editing
 - Saves modifications to existing drafts
 - Deletes selected drafts

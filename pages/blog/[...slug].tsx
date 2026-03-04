@@ -2,13 +2,7 @@ import { MDXLayoutRenderer } from '@/components/MDXComponents'
 import PageTitle from '@/components/PageTitle'
 import ScrollProgressBar from '@/components/ScrollProgressBar'
 import MainLayout from '@/layouts/MainLayout'
-import {
-  CoreContent,
-  coreContent,
-  sortedBlogPost,
-  sortedPoetryPost,
-  sortedVisibleBlogPost,
-} from '@/lib/utils/contentlayer'
+import { CoreContent, coreContent, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
 import { allBlogs } from 'contentlayer/generated'
 import { GetStaticPropsContext } from 'next'
@@ -23,8 +17,7 @@ interface BlogPageProps {
 }
 
 export async function getStaticPaths() {
-  // Include all posts so poetry slugs can be redirected to /poetry/[...slug].
-  const posts = sortedBlogPost(allBlogs)
+  const posts = sortedVisibleBlogPost(allBlogs)
   return {
     paths: posts.map((p) => ({ params: { slug: p.slug.split('/') } })),
     fallback: false,
@@ -36,15 +29,6 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext<{ slug: s
     return { notFound: true }
   }
   const slug = (params.slug as string[]).join('/')
-  const poetrySlugSet = new Set(sortedPoetryPost(allBlogs).map((p) => p.slug))
-  if (poetrySlugSet.has(slug)) {
-    return {
-      redirect: {
-        destination: `/poetry/${slug}`,
-        permanent: false,
-      },
-    }
-  }
   const sortedPosts = sortedVisibleBlogPost(allBlogs)
   const postIndex = sortedPosts.findIndex((p) => p.slug === slug)
   // TODO: Refactor this extraction of coreContent
@@ -56,7 +40,7 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext<{ slug: s
   if (!post) {
     return { notFound: true }
   }
-  const author = post.author || ['default']
+  const author = post.author || 'default'
 
   return {
     props: {

@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import { coreContent } from '@/lib/utils/contentlayer'
-import type { Authors, Blog } from 'contentlayer/generated'
+import type { Authors, Blog, Poem } from 'contentlayer/generated'
 import { ComponentMap } from 'mdx-bundler/client'
 import { useMDXComponent } from 'next-contentlayer/hooks'
 import Image from './Image'
@@ -10,7 +10,7 @@ import TOCInline from './TOCInline'
 
 interface MDXLayout {
   layout: string
-  content: Blog | Authors
+  content: Blog | Poem | Authors
   [key: string]: unknown
 }
 

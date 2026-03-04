@@ -35,6 +35,26 @@ export const Blog = defineDocumentType(() => ({
   computedFields,
 }))
 
+export const Poem = defineDocumentType(() => ({
+  name: 'Poem',
+  filePathPattern: 'poetry/**/*.mdx',
+  contentType: 'mdx',
+  fields: {
+    title: { type: 'string', required: true },
+    date: { type: 'date', required: true },
+    tags: { type: 'list', of: { type: 'string' } },
+    lastmod: { type: 'date' },
+    draft: { type: 'boolean' },
+    summary: { type: 'string' },
+    images: { type: 'list', of: { type: 'string' } },
+    author: { type: 'string', required: true },
+    layout: { type: 'string' },
+    bibliography: { type: 'string' },
+    canonicalUrl: { type: 'string' },
+  },
+  computedFields,
+}))
+
 export const Authors = defineDocumentType(() => ({
   name: 'Authors',
   filePathPattern: 'authors/**/*.mdx',
@@ -55,7 +75,7 @@ export const Authors = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: 'data',
-  documentTypes: [Blog, Authors],
+  documentTypes: [Blog, Poem, Authors],
   mdx: {
     cwd: process.cwd(),
     remarkPlugins: [remarkCodeTitles],

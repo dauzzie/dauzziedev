@@ -3,19 +3,19 @@ import PageTitle from '@/components/PageTitle'
 import ScrollProgressBar from '@/components/ScrollProgressBar'
 import MainLayout from '@/layouts/MainLayout'
 import { POETRY_ACCESS_COOKIE } from '@/lib/auth'
-import { CoreContent, coreContent, sortedPoetryPost } from '@/lib/utils/contentlayer'
-import type { Blog } from 'contentlayer/generated'
-import { allBlogs } from 'contentlayer/generated'
+import { CoreContent, coreContent, sortedPoemPost } from '@/lib/utils/contentlayer'
+import type { Poem } from 'contentlayer/generated'
+import { allPoems } from 'contentlayer/generated'
 import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
 
 const DEFAULT_LAYOUT = 'PostLayout'
 
 interface PoetryPostPageProps {
-  post: Blog | null
+  post: Poem | null
   author: string
-  prev: CoreContent<Blog> | null
-  next: CoreContent<Blog> | null
+  prev: CoreContent<Poem> | null
+  next: CoreContent<Poem> | null
 }
 
 type Params = { slug: string[] }
@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps<PoetryPostPageProps, Params>
     return { notFound: true }
   }
 
-  const sortedPosts = sortedPoetryPost(allBlogs)
+  const sortedPosts = sortedPoemPost(allPoems)
   const postIndex = sortedPosts.findIndex((p) => p.slug === slug)
   if (postIndex < 0) {
     return { notFound: true }
@@ -81,7 +81,7 @@ export default function PoetryPost({ post, author, prev, next }: PoetryPostPageP
   )
   const routeSlug = routeSlugFromQuery || routeSlugFromPath
   const resolvedPost =
-    post ?? (routeSlug ? sortedPoetryPost(allBlogs).find((p) => p.slug === routeSlug) : null)
+    post ?? (routeSlug ? sortedPoemPost(allPoems).find((p) => p.slug === routeSlug) : null)
 
   if (!resolvedPost) {
     return (

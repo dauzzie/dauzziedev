@@ -147,25 +147,30 @@ final class WriterViewModel: ObservableObject {
   }
 
   func refreshRecentDrafts() {
-    let blogPath = (repoPath as NSString).appendingPathComponent("data/blog")
-    guard let items = try? FileManager.default.contentsOfDirectory(
-      at: URL(fileURLWithPath: blogPath),
-      includingPropertiesForKeys: [.contentModificationDateKey],
-      options: [.skipsHiddenFiles]
-    ) else {
-      recentDrafts = []
-      return
+    var drafts: [RecentDraft] = []
+    for directory in ["blog", "poetry"] {
+      let absoluteDirectory = dataPath(relative: directory)
+      guard let items = try? FileManager.default.contentsOfDirectory(
+        at: URL(fileURLWithPath: absoluteDirectory),
+        includingPropertiesForKeys: [.contentModificationDateKey],
+        options: [.skipsHiddenFiles]
+      ) else {
+        continue
+      }
+
+      let scoped = items
+        .filter { $0.pathExtension == "mdx" }
+        .compactMap { url in
+          let values = try? url.resourceValues(forKeys: [.contentModificationDateKey])
+          return RecentDraft(
+            name: "\(directory)/\(url.lastPathComponent)",
+            modifiedAt: values?.contentModificationDate ?? .distantPast
+          )
+        }
+      drafts.append(contentsOf: scoped)
     }
 
-    recentDrafts = items
-      .filter { $0.pathExtension == "mdx" }
-      .compactMap { url in
-        let values = try? url.resourceValues(forKeys: [.contentModificationDateKey])
-        return RecentDraft(
-          name: url.lastPathComponent,
-          modifiedAt: values?.contentModificationDate ?? .distantPast
-        )
-      }
+    recentDrafts = drafts
       .sorted { $0.modifiedAt > $1.modifiedAt }
       .prefix(25)
       .map { $0 }
@@ -212,7 +217,7 @@ final class WriterViewModel: ObservableObject {
       body = parsed.body
       author = parsed.author
       postDate = parsed.date
-      selectedPostType = PostCategory.from(tags: parsed.tags)
+      selectedPostType = name.hasPrefix("poetry/") ? .poem : PostCategory.from(tags: parsed.tags)
       selectedTags = parsed.tags.isEmpty ? selectedPostType.defaultTags : parsed.tags
       applyPostTypeSelection(selectedPostType)
       statusMessage = "Loaded: \(name)"
@@ -232,24 +237,25 @@ final class WriterViewModel: ObservableObject {
     let date = normalizedDate(postDate)
     let slug = slugify(title)
     let filename = "\(date)-\(slug).mdx"
-    let outputPath = draftPath(named: filename)
+    let relativePath = "\(selectedPostType == .poem ? "poetry" : "blog")/\(filename)"
+    let outputPath = draftPath(named: relativePath)
 
     if FileManager.default.fileExists(atPath: outputPath) {
-      statusMessage = "Draft already exists: \(filename). Using existing file for updates."
-      currentDraftName = filename
+      statusMessage = "Draft already exists: \(relativePath). Using existing file for updates."
+      currentDraftName = relativePath
       return true
     }
 
     do {
       try FileManager.default.createDirectory(
-        atPath: draftsDirectoryPath(),
+        atPath: draftsDirectoryPath(for: selectedPostType),
         withIntermediateDirectories: true,
         attributes: nil
       )
       try buildDraftContent(date: date).write(toFile: outputPath, atomically: true, encoding: .utf8)
-      currentDraftName = filename
+      currentDraftName = relativePath
       refreshRecentDrafts()
-      statusMessage = "Created: \(filename)"
+      statusMessage = "Created: \(relativePath)"
       markCurrentStateAsSaved()
       return true
     } catch {
@@ -571,12 +577,31 @@ final class WriterViewModel: ObservableObject {
     """
   }
 
-  private func draftsDirectoryPath() -> String {
-    (repoPath as NSString).appendingPathComponent("data/blog")
+  private func draftsDirectoryPath(for type: PostCategory) -> String {
+    let relative = type == .poem ? "poetry" : "blog"
+    return dataPath(relative: relative)
   }
 
   private func draftPath(named name: String) -> String {
-    (draftsDirectoryPath() as NSString).appendingPathComponent(name)
+    let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+    if trimmed.contains("/") {
+      return dataPath(relative: trimmed)
+    }
+
+    let blogCandidate = dataPath(relative: "blog/\(trimmed)")
+    if FileManager.default.fileExists(atPath: blogCandidate) {
+      return blogCandidate
+    }
+    let poetryCandidate = dataPath(relative: "poetry/\(trimmed)")
+    if FileManager.default.fileExists(atPath: poetryCandidate) {
+      return poetryCandidate
+    }
+
+    return (draftsDirectoryPath(for: selectedPostType) as NSString).appendingPathComponent(trimmed)
+  }
+
+  private func dataPath(relative: String) -> String {
+    (repoPath as NSString).appendingPathComponent("data/\(relative)")
   }
 
   private func parseDraft(content: String) -> ParsedDraft? {
@@ -706,7 +731,10 @@ final class WriterViewModel: ObservableObject {
     }
     var combined: [String] = []
 
-    let add = runCommand("git", ["-C", repo, "add", "data/blog", "data/authors", "data/siteMetadata.js"])
+    let add = runCommand(
+      "git",
+      ["-C", repo, "add", "data/blog", "data/poetry", "data/authors", "data/siteMetadata.js"]
+    )
     combined.append("$ git add ...\n\(add.output)")
     guard add.exitCode == 0 else {
       return CommandResult(exitCode: add.exitCode, output: combined.joined(separator: "\n\n"))
@@ -830,27 +858,28 @@ final class WriterViewModel: ObservableObject {
   }
 
   private func refreshAvailableCategories() {
-    let blogPath = draftsDirectoryPath()
-    guard let items = try? FileManager.default.contentsOfDirectory(
-      at: URL(fileURLWithPath: blogPath),
-      includingPropertiesForKeys: nil,
-      options: [.skipsHiddenFiles]
-    ) else {
-      availableCategories = []
-      return
-    }
-
     var found = Set<String>()
-    for file in items where file.pathExtension == "mdx" {
-      guard let content = try? String(contentsOf: file, encoding: .utf8),
-        let parsed = parseDraft(content: content)
-      else {
+    for directory in ["blog", "poetry"] {
+      let absoluteDirectory = dataPath(relative: directory)
+      guard let items = try? FileManager.default.contentsOfDirectory(
+        at: URL(fileURLWithPath: absoluteDirectory),
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles]
+      ) else {
         continue
       }
-      for tag in parsed.tags {
-        let normalized = normalizeCategory(tag)
-        if !normalized.isEmpty {
-          found.insert(normalized)
+
+      for file in items where file.pathExtension == "mdx" {
+        guard let content = try? String(contentsOf: file, encoding: .utf8),
+          let parsed = parseDraft(content: content)
+        else {
+          continue
+        }
+        for tag in parsed.tags {
+          let normalized = normalizeCategory(tag)
+          if !normalized.isEmpty {
+            found.insert(normalized)
+          }
         }
       }
     }

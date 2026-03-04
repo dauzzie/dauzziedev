@@ -3,8 +3,8 @@ import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
 import { POETRY_ACCESS_COOKIE } from '@/lib/auth'
-import { allCoreContent, sortedPoetryPost } from '@/lib/utils/contentlayer'
-import { allBlogs } from 'contentlayer/generated'
+import { allCoreContent, sortedPoemPost } from '@/lib/utils/contentlayer'
+import { allPoems } from 'contentlayer/generated'
 import { InferGetServerSidePropsType } from 'next'
 import { GetServerSidePropsContext } from 'next/types'
 
@@ -22,7 +22,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     }
   }
 
-  const poetryPosts = sortedPoetryPost(allBlogs)
+  const poetryPosts = sortedPoemPost(allPoems)
 
   return {
     props: {
