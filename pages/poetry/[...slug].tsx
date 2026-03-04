@@ -11,13 +11,6 @@ import { GetServerSidePropsContext } from 'next/types'
 
 const DEFAULT_LAYOUT = 'PostLayout'
 
-interface PoetryPageProps {
-  post: Blog | null
-  author: string
-  prev: CoreContent<Blog> | null
-  next: CoreContent<Blog> | null
-}
-
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const poetryAccessToken = process.env.POETRY_ACCESS_TOKEN
   if (poetryAccessToken) {

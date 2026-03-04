@@ -58,7 +58,11 @@ export default function PostLayout({ content, authorDetails, children, next, pre
           style={{ gridTemplateRows: 'auto 1fr' }}
         >
           <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:pb-0 xl:col-span-4 xl:row-span-2">
-            <div className={`pt-8 pb-8 prose dark:prose-dark max-w-none ${isPoetry ? 'poetry-prose' : ''}`}>
+            <div
+              className={`pt-8 pb-8 prose dark:prose-dark max-w-none ${
+                isPoetry ? 'poetry-prose' : ''
+              }`}
+            >
               {children}
               <PostNavigation prev={prev} next={next} />
               <PostComments />
