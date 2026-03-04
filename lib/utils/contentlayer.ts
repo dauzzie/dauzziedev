@@ -11,6 +11,19 @@ export function sortedBlogPost(allBlogs: Blog[]) {
   return allBlogs.sort((a, b) => dateSortDesc(a.date, b.date)).filter((p) => p.draft === false)
 }
 
+export function isPoetryPost(post: Pick<Blog, 'tags'>) {
+  const tags = post.tags?.map((tag) => kebabCase(tag)) ?? []
+  return tags.includes('poetry') || tags.includes('poem')
+}
+
+export function sortedVisibleBlogPost(allBlogs: Blog[]) {
+  return sortedBlogPost(allBlogs).filter((post) => !isPoetryPost(post))
+}
+
+export function sortedPoetryPost(allBlogs: Blog[]) {
+  return sortedBlogPost(allBlogs).filter((post) => isPoetryPost(post))
+}
+
 type ConvertUndefined<T> = OrNull<{
   [K in keyof T as undefined extends T[K] ? K : never]-?: T[K]
 }>

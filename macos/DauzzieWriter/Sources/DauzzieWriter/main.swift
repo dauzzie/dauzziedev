@@ -6,8 +6,6 @@ import SwiftUI
 enum PostCategory: String, CaseIterable, Identifiable {
   case blog = "Blog"
   case poem = "Poem"
-  case story = "Story"
-  case note = "Note"
 
   var id: String { rawValue }
 
@@ -17,10 +15,6 @@ enum PostCategory: String, CaseIterable, Identifiable {
       return ["engineering", "career"]
     case .poem:
       return ["poetry", "creative"]
-    case .story:
-      return ["story", "creative"]
-    case .note:
-      return ["notes"]
     }
   }
 
@@ -28,12 +22,6 @@ enum PostCategory: String, CaseIterable, Identifiable {
     let normalized = Set(tags.map { $0.lowercased() })
     if normalized.contains("poetry") || normalized.contains("poem") {
       return .poem
-    }
-    if normalized.contains("story") {
-      return .story
-    }
-    if normalized.contains("notes") || normalized.contains("note") {
-      return .note
     }
     return .blog
   }
@@ -59,6 +47,22 @@ struct ParsedDraft {
   let body: String
 }
 
+struct DeletedDraft {
+  let name: String
+  let content: String
+}
+
+struct EditorSnapshot: Equatable {
+  let draftName: String?
+  let postType: PostCategory
+  let title: String
+  let summary: String
+  let body: String
+  let author: String
+  let postDate: String
+  let tags: [String]
+}
+
 @MainActor
 final class WriterViewModel: ObservableObject {
   @Published var repoPath: String
@@ -67,7 +71,10 @@ final class WriterViewModel: ObservableObject {
   @Published var body = ""
   @Published var author = "Muhamad Firdaus Husaini"
   @Published var postDate = ""
-  @Published var selectedCategory: PostCategory = .blog
+  @Published var selectedPostType: PostCategory = .blog
+  @Published var selectedTags: [String] = ["engineering", "career"]
+  @Published var newCategoryInput = ""
+  @Published var availableCategories: [String] = []
   @Published var currentDraftName: String? = nil
 
   @Published var statusMessage = ""
@@ -78,8 +85,20 @@ final class WriterViewModel: ObservableObject {
   @Published var isRunningAction = false
   @Published var vercelAuthStatus = "Not detected"
   @Published var useGitAutoDeploy = true
+  @Published var hasUnsavedChanges = false
 
+  private var lastDeletedDraft: DeletedDraft?
   private var vercelToken = ""
+  private var lastSavedSnapshot = EditorSnapshot(
+    draftName: nil,
+    postType: .blog,
+    title: "",
+    summary: "",
+    body: "",
+    author: "Muhamad Firdaus Husaini",
+    postDate: "",
+    tags: ["engineering", "career"]
+  )
 
   private let prompts = [
     "Write about one hard engineering decision you made recently.",
@@ -97,6 +116,8 @@ final class WriterViewModel: ObservableObject {
     autoConfigureWorkspace()
     refreshDailyPrompt()
     refreshRecentDrafts()
+    refreshAvailableCategories()
+    markCurrentStateAsSaved()
   }
 
   func autoConfigureWorkspace() {
@@ -148,6 +169,7 @@ final class WriterViewModel: ObservableObject {
       .sorted { $0.modifiedAt > $1.modifiedAt }
       .prefix(25)
       .map { $0 }
+    refreshAvailableCategories()
   }
 
   func filteredDrafts(search: String) -> [RecentDraft] {
@@ -163,8 +185,11 @@ final class WriterViewModel: ObservableObject {
     body = ""
     author = "Muhamad Firdaus Husaini"
     postDate = todayDateString()
-    selectedCategory = .blog
+    selectedPostType = .blog
+    selectedTags = PostCategory.blog.defaultTags
+    newCategoryInput = ""
     statusMessage = "New post editor ready."
+    markCurrentStateAsSaved()
   }
 
   func loadDraft(named name: String) {
@@ -187,8 +212,11 @@ final class WriterViewModel: ObservableObject {
       body = parsed.body
       author = parsed.author
       postDate = parsed.date
-      selectedCategory = PostCategory.from(tags: parsed.tags)
+      selectedPostType = PostCategory.from(tags: parsed.tags)
+      selectedTags = parsed.tags.isEmpty ? selectedPostType.defaultTags : parsed.tags
+      applyPostTypeSelection(selectedPostType)
       statusMessage = "Loaded: \(name)"
+      markCurrentStateAsSaved()
     } catch {
       statusMessage = "Failed to load draft: \(error.localizedDescription)"
     }
@@ -222,6 +250,7 @@ final class WriterViewModel: ObservableObject {
       currentDraftName = filename
       refreshRecentDrafts()
       statusMessage = "Created: \(filename)"
+      markCurrentStateAsSaved()
       return true
     } catch {
       statusMessage = "Failed to create draft: \(error.localizedDescription)"
@@ -252,6 +281,7 @@ final class WriterViewModel: ObservableObject {
       try buildDraftContent(date: date).write(toFile: outputPath, atomically: true, encoding: .utf8)
       refreshRecentDrafts()
       statusMessage = "Saved: \(draftName)"
+      markCurrentStateAsSaved()
       return true
     } catch {
       statusMessage = "Failed to save draft: \(error.localizedDescription)"
@@ -271,7 +301,9 @@ final class WriterViewModel: ObservableObject {
   func deleteDraft(named draftName: String) {
     let path = draftPath(named: draftName)
     do {
+      let previousContent = try String(contentsOfFile: path, encoding: .utf8)
       try FileManager.default.removeItem(atPath: path)
+      lastDeletedDraft = DeletedDraft(name: draftName, content: previousContent)
       if currentDraftName == draftName {
         newPost()
       }
@@ -280,6 +312,81 @@ final class WriterViewModel: ObservableObject {
     } catch {
       statusMessage = "Failed to delete draft: \(error.localizedDescription)"
     }
+  }
+
+  func undoLastDelete() {
+    guard let deleted = lastDeletedDraft else {
+      statusMessage = "No deleted entry to restore."
+      return
+    }
+
+    let path = draftPath(named: deleted.name)
+    guard !FileManager.default.fileExists(atPath: path) else {
+      statusMessage = "Cannot restore \(deleted.name): file already exists."
+      return
+    }
+
+    do {
+      try deleted.content.write(toFile: path, atomically: true, encoding: .utf8)
+      lastDeletedDraft = nil
+      refreshRecentDrafts()
+      loadDraft(named: deleted.name)
+      statusMessage = "Restored: \(deleted.name)"
+    } catch {
+      statusMessage = "Failed to restore draft: \(error.localizedDescription)"
+    }
+  }
+
+  func addCategoryFromInput() {
+    addCategory(newCategoryInput)
+    newCategoryInput = ""
+  }
+
+  func addCategory(_ raw: String) {
+    let normalized = normalizeCategory(raw)
+    guard !normalized.isEmpty else { return }
+    if !selectedTags.contains(normalized) {
+      selectedTags.append(normalized)
+    }
+    if !availableCategories.contains(normalized) {
+      availableCategories.append(normalized)
+      availableCategories.sort()
+    }
+    refreshDirtyState()
+  }
+
+  func applyPostTypeSelection(_ type: PostCategory) {
+    selectedPostType = type
+    let normalized = Set(selectedTags.map { normalizeCategory($0) })
+
+    switch type {
+    case .poem:
+      if !normalized.contains("poetry") && !normalized.contains("poem") {
+        selectedTags.insert("poetry", at: 0)
+      }
+      if normalized == Set(PostCategory.blog.defaultTags.map { normalizeCategory($0) }) {
+        selectedTags = PostCategory.poem.defaultTags
+      }
+    case .blog:
+      selectedTags.removeAll {
+        let value = normalizeCategory($0)
+        return value == "poetry" || value == "poem"
+      }
+      if selectedTags.isEmpty {
+        selectedTags = PostCategory.blog.defaultTags
+      }
+    }
+
+    refreshDirtyState()
+  }
+
+  func removeCategory(_ category: String) {
+    selectedTags.removeAll { $0 == category }
+    refreshDirtyState()
+  }
+
+  func availableCategoryOptions() -> [String] {
+    availableCategories.filter { !selectedTags.contains($0) }
   }
 
   func openCurrentDraft() {
@@ -339,6 +446,28 @@ final class WriterViewModel: ObservableObject {
         self.statusMessage = "Git push completed."
       } else {
         self.statusMessage = "Git push failed. Check command log."
+      }
+    }
+  }
+
+  func commitChanges() {
+    guard effectiveRepoPath() != nil else {
+      statusMessage = "Set a valid git repo path first."
+      return
+    }
+
+    let message = commitMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      ? "chore(content): update writing"
+      : commitMessage
+
+    runAction {
+      self.runGitCommit(message: message)
+    } completion: { result in
+      self.commandLog = result.output
+      if result.exitCode == 0 {
+        self.statusMessage = "Commit completed."
+      } else {
+        self.statusMessage = "Commit failed. Check command log."
       }
     }
   }
@@ -414,8 +543,16 @@ final class WriterViewModel: ObservableObject {
   }
 
   private func buildDraftContent(date: String) -> String {
-    let tags = selectedCategory.defaultTags.map { "'\($0)'" }.joined(separator: ", ")
-    let fallbackSummary = summary.isEmpty ? "New \(selectedCategory.rawValue.lowercased()) draft." : summary
+    let normalizedTags = selectedTags
+      .map { normalizeCategory($0) }
+      .filter { !$0.isEmpty }
+    let typeTag = normalizeCategory(selectedPostType.rawValue)
+    var finalTags = normalizedTags.isEmpty ? selectedPostType.defaultTags : normalizedTags
+    if !typeTag.isEmpty && !finalTags.contains(typeTag) {
+      finalTags.insert(typeTag, at: 0)
+    }
+    let tags = finalTags.map { "'\($0)'" }.joined(separator: ", ")
+    let fallbackSummary = summary.isEmpty ? "New writing draft." : summary
     let draftBody = body.isEmpty ? "Start writing..." : body
 
     return """
@@ -486,6 +623,41 @@ final class WriterViewModel: ObservableObject {
     return cleaned.isEmpty ? todayDateString() : cleaned
   }
 
+  private func normalizeCategory(_ value: String) -> String {
+    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    guard !trimmed.isEmpty else { return "" }
+    let replaced = trimmed.replacingOccurrences(of: " ", with: "-")
+    let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+    let cleaned = replaced.unicodeScalars.filter { allowed.contains($0) }
+    return String(String.UnicodeScalarView(cleaned))
+  }
+
+  func refreshDirtyState() {
+    hasUnsavedChanges = currentSnapshot() != lastSavedSnapshot
+  }
+
+  private func markCurrentStateAsSaved() {
+    lastSavedSnapshot = currentSnapshot()
+    hasUnsavedChanges = false
+  }
+
+  private func currentSnapshot() -> EditorSnapshot {
+    let normalizedTags = selectedTags
+      .map { normalizeCategory($0) }
+      .filter { !$0.isEmpty }
+      .sorted()
+    return EditorSnapshot(
+      draftName: currentDraftName,
+      postType: selectedPostType,
+      title: title,
+      summary: summary,
+      body: body,
+      author: author,
+      postDate: postDate,
+      tags: normalizedTags
+    )
+  }
+
   private func todayDateString() -> String {
     String(ISO8601DateFormatter().string(from: Date()).prefix(10))
   }
@@ -513,6 +685,22 @@ final class WriterViewModel: ObservableObject {
   }
 
   private func runGitPush(message: String) -> CommandResult {
+    let commitResult = runGitCommit(message: message)
+    if commitResult.exitCode != 0 {
+      return commitResult
+    }
+
+    guard let repo = effectiveRepoPath() else {
+      return CommandResult(exitCode: 1, output: "Repo path is not a git repository: \(repoPath)")
+    }
+    var combined: [String] = [commitResult.output]
+
+    let push = runCommand("git", ["-C", repo, "push"])
+    combined.append("$ git push\n\(push.output)")
+    return CommandResult(exitCode: push.exitCode, output: combined.joined(separator: "\n\n"))
+  }
+
+  private func runGitCommit(message: String) -> CommandResult {
     guard let repo = effectiveRepoPath() else {
       return CommandResult(exitCode: 1, output: "Repo path is not a git repository: \(repoPath)")
     }
@@ -530,9 +718,7 @@ final class WriterViewModel: ObservableObject {
       return CommandResult(exitCode: commit.exitCode, output: combined.joined(separator: "\n\n"))
     }
 
-    let push = runCommand("git", ["-C", repo, "push"])
-    combined.append("$ git push\n\(push.output)")
-    return CommandResult(exitCode: push.exitCode, output: combined.joined(separator: "\n\n"))
+    return CommandResult(exitCode: 0, output: combined.joined(separator: "\n\n"))
   }
 
   private func runDeploy() -> CommandResult {
@@ -643,6 +829,35 @@ final class WriterViewModel: ObservableObject {
     return nil
   }
 
+  private func refreshAvailableCategories() {
+    let blogPath = draftsDirectoryPath()
+    guard let items = try? FileManager.default.contentsOfDirectory(
+      at: URL(fileURLWithPath: blogPath),
+      includingPropertiesForKeys: nil,
+      options: [.skipsHiddenFiles]
+    ) else {
+      availableCategories = []
+      return
+    }
+
+    var found = Set<String>()
+    for file in items where file.pathExtension == "mdx" {
+      guard let content = try? String(contentsOf: file, encoding: .utf8),
+        let parsed = parseDraft(content: content)
+      else {
+        continue
+      }
+      for tag in parsed.tags {
+        let normalized = normalizeCategory(tag)
+        if !normalized.isEmpty {
+          found.insert(normalized)
+        }
+      }
+    }
+
+    availableCategories = found.sorted()
+  }
+
   private func detectDefaultVercelToken() -> String {
     let envToken = ProcessInfo.processInfo.environment["VERCEL_TOKEN"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     if !envToken.isEmpty {
@@ -720,10 +935,26 @@ private struct ContentView: View {
   @State private var draftToDelete: String?
   @State private var showAdvanced = false
   @State private var showCommandLog = false
+  @State private var savePulse = false
 
   var body: some View {
     VStack(spacing: 0) {
       HStack {
+        ZStack {
+          Circle()
+            .fill(
+              LinearGradient(
+                colors: [.pink.opacity(0.85), .purple.opacity(0.85), .blue.opacity(0.8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+              )
+            )
+            .frame(width: 42, height: 42)
+          Image(systemName: "pencil.and.scribble")
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(.white)
+        }
+
         VStack(alignment: .leading, spacing: 2) {
           Text("Dauzzie Writer")
             .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -773,6 +1004,12 @@ private struct ContentView: View {
               }
               .buttonStyle(.bordered)
               .tint(.red)
+              Button {
+                model.undoLastDelete()
+              } label: {
+                Image(systemName: "arrow.uturn.backward")
+              }
+              .buttonStyle(.bordered)
             }
           }
 
@@ -796,7 +1033,13 @@ private struct ContentView: View {
         }
         .frame(width: 350)
         .padding(14)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(
+          LinearGradient(
+            colors: [Color.blue.opacity(0.08), Color.cyan.opacity(0.06)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+          )
+        )
 
         Divider()
 
@@ -805,31 +1048,100 @@ private struct ContentView: View {
             TextField("Title", text: $model.title)
               .font(.title2)
               .textFieldStyle(.roundedBorder)
+              .onChange(of: model.title) { _ in model.refreshDirtyState() }
 
             TextField("Summary", text: $model.summary)
               .textFieldStyle(.roundedBorder)
+              .onChange(of: model.summary) { _ in model.refreshDirtyState() }
+
+            Picker("Post Type", selection: $model.selectedPostType) {
+              ForEach(PostCategory.allCases) { type in
+                Text(type.rawValue).tag(type)
+              }
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: model.selectedPostType) { newType in
+              model.applyPostTypeSelection(newType)
+            }
+
+            if model.selectedPostType == .poem {
+              Text("Poem posts publish to /poetry (password-gated).")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
 
             HStack(spacing: 12) {
-              Picker("Category", selection: $model.selectedCategory) {
-                ForEach(PostCategory.allCases) { type in
-                  Text(type.rawValue).tag(type)
+              HStack(spacing: 8) {
+                TextField("Add category", text: $model.newCategoryInput)
+                  .textFieldStyle(.roundedBorder)
+                Button("+") { model.addCategoryFromInput() }
+                  .buttonStyle(.bordered)
+                Menu("Add Existing") {
+                  let options = model.availableCategoryOptions()
+                  if options.isEmpty {
+                    Text("No saved categories")
+                  } else {
+                    ForEach(options, id: \.self) { category in
+                      Button(category) { model.addCategory(category) }
+                    }
+                  }
                 }
               }
-              .frame(width: 170)
               TextField("Date (YYYY-MM-DD)", text: $model.postDate)
                 .textFieldStyle(.roundedBorder)
+                .onChange(of: model.postDate) { _ in model.refreshDirtyState() }
+            }
+
+            if !model.selectedTags.isEmpty {
+              ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                  ForEach(model.selectedTags, id: \.self) { tag in
+                    HStack(spacing: 4) {
+                      Text(tag)
+                        .font(.caption)
+                      Button {
+                        model.removeCategory(tag)
+                      } label: {
+                        Image(systemName: "xmark.circle.fill")
+                          .font(.caption)
+                      }
+                      .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.mint.opacity(0.18))
+                    .clipShape(Capsule())
+                  }
+                }
+              }
             }
 
             TextEditor(text: $model.body)
-              .font(.system(size: 14, weight: .regular, design: .monospaced))
+              .font(
+                model.selectedPostType == .poem
+                  ? .custom("Iowan Old Style", size: 18)
+                  : .system(size: 14, weight: .regular, design: .monospaced)
+              )
+              .lineSpacing(model.selectedPostType == .poem ? 8 : 2)
               .frame(minHeight: 420)
               .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.25)))
+              .onChange(of: model.body) { _ in model.refreshDirtyState() }
 
             HStack(spacing: 8) {
               Button("Save Draft") { _ = model.saveCurrentPost() }
                 .buttonStyle(.borderedProminent)
+                .tint(model.hasUnsavedChanges ? .orange : .blue)
+                .scaleEffect(model.hasUnsavedChanges && savePulse ? 1.03 : 1.0)
+                .shadow(color: model.hasUnsavedChanges ? .orange.opacity(0.4) : .clear, radius: 10)
+                .animation(
+                  model.hasUnsavedChanges
+                    ? .easeInOut(duration: 0.85).repeatForever(autoreverses: true)
+                    : .default,
+                  value: savePulse
+                )
               Button("Publish Live") { model.oneClickPublish() }
                 .buttonStyle(.borderedProminent)
+                .tint(.pink)
                 .disabled(model.isRunningAction)
               Button("Delete Current") {
                 if let name = model.currentDraftName {
@@ -848,6 +1160,9 @@ private struct ContentView: View {
                 TextField("Commit message", text: $model.commitMessage)
                   .textFieldStyle(.roundedBorder)
                 HStack(spacing: 8) {
+                  Button("Commit Changes") { model.commitChanges() }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isRunningAction)
                   Button("Commit + Push") { model.commitAndPush() }
                     .buttonStyle(.bordered)
                     .disabled(model.isRunningAction)
@@ -877,7 +1192,7 @@ private struct ContentView: View {
                     .padding(8)
                 }
                 .frame(minHeight: 140, maxHeight: 220)
-                .background(Color.black.opacity(0.06))
+                .background(Color.indigo.opacity(0.08))
                 .cornerRadius(8)
               }
             }
@@ -899,6 +1214,12 @@ private struct ContentView: View {
       }
     } message: {
       Text(draftToDelete ?? "")
+    }
+    .onChange(of: model.hasUnsavedChanges) { changed in
+      savePulse = changed
+    }
+    .onAppear {
+      savePulse = model.hasUnsavedChanges
     }
   }
 }

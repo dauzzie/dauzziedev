@@ -2,7 +2,7 @@ import { TagSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
-import { allCoreContent, getAllTags } from '@/lib/utils/contentlayer'
+import { allCoreContent, getAllTags, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import kebabCase from '@/lib/utils/kebabCase'
 import { allBlogs, Blog } from 'contentlayer/generated'
 
@@ -12,7 +12,7 @@ interface TagProps {
 }
 
 export async function getStaticPaths() {
-  const tags = await getAllTags(allBlogs)
+  const tags = await getAllTags(sortedVisibleBlogPost(allBlogs))
 
   return {
     paths: Object.keys(tags).map((tag) => ({
@@ -26,8 +26,9 @@ export async function getStaticPaths() {
 
 export const getStaticProps = async (context: { params: { tag: string } }) => {
   const tag = context.params.tag
+  const visiblePosts = sortedVisibleBlogPost(allBlogs)
   const filteredPosts = allCoreContent(
-    allBlogs.filter(
+    visiblePosts.filter(
       (post) => post.draft !== true && post.tags?.map((t) => kebabCase(t)).includes(tag)
     )
   )

@@ -9,9 +9,16 @@ interface Props {
   title: string
   initialDisplayPosts?: CoreContent<Blog>[]
   pagination?: ComponentProps<typeof Pagination>
+  linkPrefix?: '/blog' | '/poetry'
 }
 
-export default function ListLayout({ posts, title, initialDisplayPosts = [], pagination }: Props) {
+export default function ListLayout({
+  posts,
+  title,
+  initialDisplayPosts = [],
+  pagination,
+  linkPrefix = '/blog',
+}: Props) {
   const [searchValue, setSearchValue] = useState('')
   const filteredBlogPosts = posts.filter((post) => {
     const searchContent = post.title + post.summary + post.tags?.join(' ')
@@ -54,7 +61,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
             </svg>
           </div>
         </div>
-        <PostCard posts={displayPosts} />
+        <PostCard posts={displayPosts} linkPrefix={linkPrefix} />
       </div>
       {pagination && pagination.totalPages > 1 && !searchValue && (
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />

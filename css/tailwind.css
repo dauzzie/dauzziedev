@@ -200,6 +200,29 @@ input:-webkit-autofill:focus {
   border: 1px solid rgba(148, 163, 184, 0.22);
 }
 
+.poetry-prose {
+  font-family:
+    'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman',
+    serif;
+  font-size: 1.12rem;
+  line-height: 1.95;
+  letter-spacing: 0.01em;
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.poetry-prose p,
+.poetry-prose li,
+.poetry-prose blockquote {
+  white-space: break-spaces;
+}
+
+.poetry-prose p {
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
 @keyframes rave-shift-left {
   0% {
     transform: translate(1px, 0);

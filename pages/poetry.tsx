@@ -3,8 +3,7 @@ import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
 import { POETRY_ACCESS_COOKIE } from '@/lib/auth'
-import { allCoreContent, sortedBlogPost } from '@/lib/utils/contentlayer'
-import kebabCase from '@/lib/utils/kebabCase'
+import { allCoreContent, sortedPoetryPost } from '@/lib/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { InferGetServerSidePropsType } from 'next'
 import { GetServerSidePropsContext } from 'next/types'
@@ -23,10 +22,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     }
   }
 
-  const activePosts = allBlogs.filter((post) => post.draft === false)
-  const poetryPosts = sortedBlogPost(activePosts).filter((post) =>
-    post.tags?.map((tag) => kebabCase(tag)).includes('poetry')
-  )
+  const poetryPosts = sortedPoetryPost(allBlogs)
 
   return {
     props: {
@@ -39,7 +35,7 @@ export default function Poetry({ posts }: InferGetServerSidePropsType<typeof get
   return (
     <MainLayout>
       <PageSEO title={`Poetry - ${siteMetadata.author}`} description="Poems and written pieces" />
-      <ListLayout posts={posts} title="Poetry" />
+      <ListLayout posts={posts} title="Poetry" linkPrefix="/poetry" />
     </MainLayout>
   )
 }

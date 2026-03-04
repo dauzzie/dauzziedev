@@ -3,6 +3,7 @@ import PostComments from '@/components/PostComments'
 import PostNavigation from '@/components/PostNavigation'
 import { BlogSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
+import kebabCase from '@/lib/utils/kebabCase'
 import { CoreContent } from '@/lib/utils/contentlayer'
 import type { Authors, Blog } from 'contentlayer/generated'
 import { ReactNode } from 'react'
@@ -22,12 +23,15 @@ interface Props {
 }
 
 export default function PostLayout({ content, authorDetails, children, next, prev }: Props) {
-  const { slug, date, title, author, readingTime } = content
+  const { slug, date, title, author, readingTime, tags } = content
+  const normalizedTags = tags?.map((tag) => kebabCase(tag)) ?? []
+  const isPoetry = normalizedTags.includes('poetry') || normalizedTags.includes('poem')
+  const contentRoute = isPoetry ? 'poetry' : 'blog'
 
   return (
     <>
       <BlogSEO
-        url={`${siteMetadata.siteUrl}/blog/${slug}`}
+        url={`${siteMetadata.siteUrl}/${contentRoute}/${slug}`}
         authorDetails={authorDetails}
         {...content}
       />
@@ -54,7 +58,7 @@ export default function PostLayout({ content, authorDetails, children, next, pre
           style={{ gridTemplateRows: 'auto 1fr' }}
         >
           <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:pb-0 xl:col-span-4 xl:row-span-2">
-            <div className="pt-8 pb-8 prose dark:prose-dark max-w-none">
+            <div className={`pt-8 pb-8 prose dark:prose-dark max-w-none ${isPoetry ? 'poetry-prose' : ''}`}>
               {children}
               <PostNavigation prev={prev} next={next} />
               <PostComments />

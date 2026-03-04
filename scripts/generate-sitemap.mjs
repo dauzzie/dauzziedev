@@ -4,11 +4,18 @@ import prettier from 'prettier'
 import siteMetadata from '../data/siteMetadata.js'
 import { allBlogs } from '../.contentlayer/generated/index.mjs'
 
+const isPoetry = (post) => {
+  const tags = (post.tags || []).map((tag) => String(tag).toLowerCase())
+  return tags.includes('poetry') || tags.includes('poem')
+}
+
 async function generate() {
   const prettierConfig = await prettier.resolveConfig('./.prettierrc.js')
-  const contentPages = allBlogs
-    .map((x) => `/${x._raw.flattenedPath}`)
-    .filter((x) => !x.draft && !x.canonicalUrl)
+  const contentPages = allBlogs.flatMap((post) => {
+    if (post.draft || post.canonicalUrl) return []
+    const routePrefix = isPoetry(post) ? '/poetry' : '/blog'
+    return [`${routePrefix}/${post.slug}`]
+  })
   const pages = await globby([
     'pages/*.{js|tsx}',
     'public/tags/**/*.xml',

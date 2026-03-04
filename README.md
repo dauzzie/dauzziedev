@@ -72,7 +72,8 @@ POETRY_ACCESS_TOKEN=another-long-random-token
 
 ## 3) Content Workflow
 
-- Blog/story/poem posts: `data/blog/*.mdx`
+- Blog posts: `data/blog/*.mdx`
+- Poetry posts: `data/blog/*.mdx` (tagged with `poetry`, shown under `/poetry`)
 - About/career content: `data/authors/default.mdx`
 - Site identity/slogan/socials: `data/siteMetadata.js`
 
@@ -110,7 +111,7 @@ cd macos/DauzzieWriter
 ```
 
 The app includes:
-- Draft creation (`Blog`, `Poem`, `Story`, `Note`)
+- Draft creation (`Blog`, `Poem`)
 - Git commit + push buttons
 - Vercel deployment trigger button
 - Deploy Hook and `VERCEL_TOKEN` settings

@@ -2,14 +2,13 @@ import { PageSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
-import { allCoreContent } from '@/lib/utils/contentlayer'
+import { allCoreContent, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
-import { sortedBlogPost } from '../../../lib/utils/contentlayer'
 import { POSTS_PER_PAGE } from '../../blog'
 
 export const getStaticPaths = async () => {
-  const totalPosts = sortedBlogPost(allBlogs)
+  const totalPosts = sortedVisibleBlogPost(allBlogs)
   const totalPages = Math.ceil(totalPosts.length / POSTS_PER_PAGE)
   const paths = Array.from({ length: totalPages }, (_, i) => ({
     params: { page: (i + 1).toString() },
@@ -26,7 +25,7 @@ export const getStaticProps = async (context: GetStaticPropsContext<{ page: stri
   if (!page) {
     return { notFound: true }
   }
-  const posts = sortedBlogPost(allBlogs)
+  const posts = sortedVisibleBlogPost(allBlogs)
   const pageNumber = parseInt(page as string)
   const initialDisplayPosts = posts.slice(
     POSTS_PER_PAGE * (pageNumber - 1),

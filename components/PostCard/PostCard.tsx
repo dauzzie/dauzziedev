@@ -7,9 +7,10 @@ import Link from 'next/link'
 export interface PostCardProps {
   posts: CoreContent<Blog>[]
   showTags?: boolean
+  linkPrefix?: '/blog' | '/poetry'
 }
 
-export default function PostCard({ posts, showTags = true }: PostCardProps) {
+export default function PostCard({ posts, showTags = true, linkPrefix = '/blog' }: PostCardProps) {
   return (
     <ul>
       {posts.map(({ slug, title, tags, summary }, index) => (
@@ -20,11 +21,11 @@ export default function PostCard({ posts, showTags = true }: PostCardProps) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, delay: index / 10 }}
         >
-          <Link href={`/blog/${slug}`} aria-label={`Read "${title}"`} legacyBehavior>
+          <Link href={`${linkPrefix}/${slug}`} aria-label={`Read "${title}"`} legacyBehavior>
             <article className="space-y-2 gap-3 xl:grid xl:grid-cols-4 xl:space-y-0 xl:items-baseline bg-opacity-20 py-5 cursor-pointer">
               <div className="space-y-3 xl:col-span-4">
                 <span className="text-2xl font-bold leading-8 tracking-tight">
-                  <Link href={`/blog/${slug}`} legacyBehavior>
+                  <Link href={`${linkPrefix}/${slug}`} legacyBehavior>
                     <span className="text-primary-500 hover:text-primary-400 duration-300">
                       {title}
                     </span>

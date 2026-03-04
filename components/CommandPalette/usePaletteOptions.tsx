@@ -1,4 +1,4 @@
-import { sortedBlogPost } from '@/lib/utils/contentlayer'
+import { sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/router'
@@ -21,7 +21,7 @@ type PaletteOption = {
 
 export default function usePaletteOptions() {
   const router = useRouter()
-  const sortedPosts = sortedBlogPost(allBlogs)
+  const sortedPosts = sortedVisibleBlogPost(allBlogs)
   const { theme, setTheme } = useTheme()
 
   const generalOptions: PaletteOption[] = [
