@@ -64,7 +64,11 @@ export default function PostLayout({ content, authorDetails, children, next, pre
               }`}
             >
               {children}
-              <PostNavigation prev={prev} next={next} routePrefix={isPoetry ? '/poetry' : '/blog'} />
+              <PostNavigation
+                prev={prev}
+                next={next}
+                routePrefix={isPoetry ? '/poetry' : '/blog'}
+              />
               <PostComments />
             </div>
           </div>

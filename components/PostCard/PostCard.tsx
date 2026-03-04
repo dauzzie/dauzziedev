@@ -39,9 +39,7 @@ export default function PostCard({ posts, showTags = true, linkPrefix = '/blog' 
                   ))}
                 </div>
               )}
-              <div className="prose text-gray-900 dark:text-gray-100 max-w-none">
-                {summary}
-              </div>
+              <div className="prose text-gray-900 dark:text-gray-100 max-w-none">{summary}</div>
             </div>
           </article>
         </motion.li>
