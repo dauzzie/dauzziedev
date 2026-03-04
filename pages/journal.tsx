@@ -2,7 +2,7 @@ import { PageSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
-import { JOURNAL_ACCESS_COOKIE } from '@/lib/auth'
+import { JOURNAL_ACCESS_COOKIE, isJournalProtectionEnabled } from '@/lib/auth'
 import { allCoreContent, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { InferGetServerSidePropsType } from 'next'
@@ -11,8 +11,8 @@ import type { GetServerSidePropsContext } from 'next'
 export const POSTS_PER_PAGE = 5
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const journalAccessToken = process.env.JOURNAL_ACCESS_TOKEN
-  if (journalAccessToken) {
+  if (isJournalProtectionEnabled()) {
+    const journalAccessToken = process.env.JOURNAL_ACCESS_TOKEN
     const cookie = context.req.cookies?.[JOURNAL_ACCESS_COOKIE]
     if (cookie !== journalAccessToken) {
       return {

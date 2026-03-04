@@ -2,7 +2,7 @@ import { MDXLayoutRenderer } from '@/components/MDXComponents'
 import PageTitle from '@/components/PageTitle'
 import ScrollProgressBar from '@/components/ScrollProgressBar'
 import MainLayout from '@/layouts/MainLayout'
-import { POETRY_ACCESS_COOKIE } from '@/lib/auth'
+import { POETRY_ACCESS_COOKIE, isPoetryProtectionEnabled } from '@/lib/auth'
 import { CoreContent, coreContent, sortedPoemPost } from '@/lib/utils/contentlayer'
 import type { Poem } from 'contentlayer/generated'
 import { allPoems } from 'contentlayer/generated'
@@ -23,8 +23,8 @@ type Params = { slug: string[] }
 export const getServerSideProps: GetServerSideProps<PoetryPostPageProps, Params> = async (
   context: GetServerSidePropsContext<Params>
 ) => {
-  const poetryAccessToken = process.env.POETRY_ACCESS_TOKEN
-  if (poetryAccessToken) {
+  if (isPoetryProtectionEnabled()) {
+    const poetryAccessToken = process.env.POETRY_ACCESS_TOKEN
     const cookie = context.req.cookies?.[POETRY_ACCESS_COOKIE]
     if (cookie !== poetryAccessToken) {
       const nextRoute = context.resolvedUrl || '/poetry'

@@ -2,7 +2,7 @@ import { MDXLayoutRenderer } from '@/components/MDXComponents'
 import PageTitle from '@/components/PageTitle'
 import ScrollProgressBar from '@/components/ScrollProgressBar'
 import MainLayout from '@/layouts/MainLayout'
-import { JOURNAL_ACCESS_COOKIE } from '@/lib/auth'
+import { JOURNAL_ACCESS_COOKIE, isJournalProtectionEnabled } from '@/lib/auth'
 import { CoreContent, coreContent, sortedVisibleBlogPost } from '@/lib/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
 import { allBlogs } from 'contentlayer/generated'
@@ -22,8 +22,8 @@ type Params = { slug: string[] }
 export const getServerSideProps: GetServerSideProps<JournalPostPageProps, Params> = async (
   context: GetServerSidePropsContext<Params>
 ) => {
-  const journalAccessToken = process.env.JOURNAL_ACCESS_TOKEN
-  if (journalAccessToken) {
+  if (isJournalProtectionEnabled()) {
+    const journalAccessToken = process.env.JOURNAL_ACCESS_TOKEN
     const cookie = context.req.cookies?.[JOURNAL_ACCESS_COOKIE]
     if (cookie !== journalAccessToken) {
       const nextRoute = context.resolvedUrl || '/journal'
