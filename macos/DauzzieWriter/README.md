@@ -28,9 +28,13 @@ open Package.swift
 ## What it does
 
 - Creates MDX drafts in `data/blog/`
-- Supports `Blog`, `Poem`, `Story`, and `Note` templates
+- Loads existing drafts for editing
+- Saves modifications to existing drafts
+- Deletes selected drafts
+- Supports category dropdown: `Blog`, `Poem`, `Story`, `Note`
 - Shows a rotating daily writing prompt
 - Lists latest draft files
+- Syncs latest content from GitHub (`git fetch` + `git pull --ff-only`)
 - Opens repo, local site, and latest draft quickly
 - Commits and pushes content changes to GitHub
 - Triggers deployment to Vercel (via Deploy Hook or Vercel CLI)

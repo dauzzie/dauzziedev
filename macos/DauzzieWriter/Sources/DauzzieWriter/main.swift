@@ -1,8 +1,9 @@
 import AppKit
 import Foundation
+import Security
 import SwiftUI
 
-enum WritingType: String, CaseIterable, Identifiable {
+enum PostCategory: String, CaseIterable, Identifiable {
   case blog = "Blog"
   case poem = "Poem"
   case story = "Story"
@@ -22,6 +23,20 @@ enum WritingType: String, CaseIterable, Identifiable {
       return ["notes"]
     }
   }
+
+  static func from(tags: [String]) -> PostCategory {
+    let normalized = Set(tags.map { $0.lowercased() })
+    if normalized.contains("poetry") || normalized.contains("poem") {
+      return .poem
+    }
+    if normalized.contains("story") {
+      return .story
+    }
+    if normalized.contains("notes") || normalized.contains("note") {
+      return .note
+    }
+    return .blog
+  }
 }
 
 struct RecentDraft: Identifiable {
@@ -35,6 +50,15 @@ struct CommandResult {
   let output: String
 }
 
+struct ParsedDraft {
+  let title: String
+  let date: String
+  let summary: String
+  let author: String
+  let tags: [String]
+  let body: String
+}
+
 @MainActor
 final class WriterViewModel: ObservableObject {
   @Published var repoPath: String
@@ -42,16 +66,19 @@ final class WriterViewModel: ObservableObject {
   @Published var summary = ""
   @Published var body = ""
   @Published var author = "Muhamad Firdaus Husaini"
-  @Published var selectedType: WritingType = .blog
+  @Published var postDate = ""
+  @Published var selectedCategory: PostCategory = .blog
+  @Published var currentDraftName: String? = nil
+
   @Published var statusMessage = ""
   @Published var dailyPrompt = ""
   @Published var recentDrafts: [RecentDraft] = []
   @Published var commitMessage = ""
-  @Published var vercelToken = ""
-  @Published var vercelProjectName = ""
-  @Published var deployHookURL = ""
   @Published var commandLog = ""
   @Published var isRunningAction = false
+  @Published var vercelAuthStatus = "Not detected"
+
+  private var vercelToken = ""
 
   private let prompts = [
     "Write about one hard engineering decision you made recently.",
@@ -63,21 +90,30 @@ final class WriterViewModel: ObservableObject {
 
   init() {
     let defaults = UserDefaults.standard
-    let defaultPath = FileManager.default.currentDirectoryPath
-    self.repoPath = defaults.string(forKey: "repoPath") ?? defaultPath
-    self.vercelToken = defaults.string(forKey: "vercelToken") ?? ""
-    self.vercelProjectName = defaults.string(forKey: "vercelProjectName") ?? ""
-    self.deployHookURL = defaults.string(forKey: "deployHookURL") ?? ""
+    self.repoPath = defaults.string(forKey: "repoPath") ?? ""
+    self.postDate = todayDateString()
+    autoConfigureWorkspace()
     refreshDailyPrompt()
     refreshRecentDrafts()
   }
 
+  func autoConfigureWorkspace() {
+    if let resolvedRepo = detectDefaultRepoPath() {
+      repoPath = resolvedRepo
+      UserDefaults.standard.set(resolvedRepo, forKey: "repoPath")
+    }
+
+    vercelToken = detectDefaultVercelToken()
+    vercelAuthStatus = vercelToken.isEmpty ? "Not detected" : "Loaded automatically"
+  }
+
   func saveSettings() {
+    guard effectiveRepoPath() != nil else {
+      statusMessage = "Invalid repo path. Please select the project root that contains .git."
+      return
+    }
     let defaults = UserDefaults.standard
     defaults.set(repoPath, forKey: "repoPath")
-    defaults.set(vercelToken, forKey: "vercelToken")
-    defaults.set(vercelProjectName, forKey: "vercelProjectName")
-    defaults.set(deployHookURL, forKey: "deployHookURL")
     refreshRecentDrafts()
     statusMessage = "Settings saved."
   }
@@ -102,11 +138,52 @@ final class WriterViewModel: ObservableObject {
       .filter { $0.pathExtension == "mdx" }
       .compactMap { url in
         let values = try? url.resourceValues(forKeys: [.contentModificationDateKey])
-        return RecentDraft(name: url.lastPathComponent, modifiedAt: values?.contentModificationDate ?? .distantPast)
+        return RecentDraft(
+          name: url.lastPathComponent,
+          modifiedAt: values?.contentModificationDate ?? .distantPast
+        )
       }
       .sorted { $0.modifiedAt > $1.modifiedAt }
-      .prefix(8)
+      .prefix(25)
       .map { $0 }
+  }
+
+  func newPost() {
+    currentDraftName = nil
+    title = ""
+    summary = ""
+    body = ""
+    author = "Muhamad Firdaus Husaini"
+    postDate = todayDateString()
+    selectedCategory = .blog
+    statusMessage = "New post editor ready."
+  }
+
+  func loadDraft(named name: String) {
+    let path = draftPath(named: name)
+    guard FileManager.default.fileExists(atPath: path) else {
+      statusMessage = "Draft not found: \(name)"
+      return
+    }
+
+    do {
+      let content = try String(contentsOfFile: path, encoding: .utf8)
+      guard let parsed = parseDraft(content: content) else {
+        statusMessage = "Could not parse frontmatter for \(name)."
+        return
+      }
+
+      currentDraftName = name
+      title = parsed.title
+      summary = parsed.summary
+      body = parsed.body
+      author = parsed.author
+      postDate = parsed.date
+      selectedCategory = PostCategory.from(tags: parsed.tags)
+      statusMessage = "Loaded: \(name)"
+    } catch {
+      statusMessage = "Failed to load draft: \(error.localizedDescription)"
+    }
   }
 
   @discardableResult
@@ -116,46 +193,57 @@ final class WriterViewModel: ObservableObject {
       return false
     }
 
-    let date = ISO8601DateFormatter().string(from: Date()).prefix(10)
+    let date = normalizedDate(postDate)
     let slug = slugify(title)
     let filename = "\(date)-\(slug).mdx"
-    let blogPath = (repoPath as NSString).appendingPathComponent("data/blog")
-    let outputPath = (blogPath as NSString).appendingPathComponent(filename)
+    let outputPath = draftPath(named: filename)
 
     if FileManager.default.fileExists(atPath: outputPath) {
-      statusMessage = "Draft already exists: \(filename)"
+      statusMessage = "Draft already exists: \(filename). Using existing file for updates."
+      currentDraftName = filename
       return true
     }
 
-    let tags = selectedType.defaultTags.map { "'\($0)'" }.joined(separator: ", ")
-    let fallbackSummary = summary.isEmpty ? "New \(selectedType.rawValue.lowercased()) draft." : summary
-    let draftBody = body.isEmpty ? "Start writing..." : body
-
-    let content = """
-    ---
-    title: "\(title)"
-    date: "\(date)"
-    tags: [\(tags)]
-    draft: false
-    summary: "\(fallbackSummary)"
-    images: []
-    layout: PostLayout
-    author: "\(author)"
-    ---
-
-    \(draftBody)
-    """
-
     do {
       try FileManager.default.createDirectory(
-        atPath: blogPath,
+        atPath: draftsDirectoryPath(),
         withIntermediateDirectories: true,
         attributes: nil
       )
-      try content.write(toFile: outputPath, atomically: true, encoding: .utf8)
-      statusMessage = "Saved: \(filename)"
+      try buildDraftContent(date: date).write(toFile: outputPath, atomically: true, encoding: .utf8)
+      currentDraftName = filename
       refreshRecentDrafts()
-      open(path: outputPath)
+      statusMessage = "Created: \(filename)"
+      return true
+    } catch {
+      statusMessage = "Failed to create draft: \(error.localizedDescription)"
+      return false
+    }
+  }
+
+  @discardableResult
+  func saveCurrentPost() -> Bool {
+    guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      statusMessage = "Title is required."
+      return false
+    }
+
+    if currentDraftName == nil {
+      return createDraft()
+    }
+
+    guard let draftName = currentDraftName else {
+      statusMessage = "No active draft selected."
+      return false
+    }
+
+    let outputPath = draftPath(named: draftName)
+    let date = normalizedDate(postDate)
+
+    do {
+      try buildDraftContent(date: date).write(toFile: outputPath, atomically: true, encoding: .utf8)
+      refreshRecentDrafts()
+      statusMessage = "Saved: \(draftName)"
       return true
     } catch {
       statusMessage = "Failed to save draft: \(error.localizedDescription)"
@@ -163,38 +251,78 @@ final class WriterViewModel: ObservableObject {
     }
   }
 
+  func deleteCurrentDraft() {
+    guard let draftName = currentDraftName else {
+      statusMessage = "Select a draft first."
+      return
+    }
+
+    let path = draftPath(named: draftName)
+    do {
+      try FileManager.default.removeItem(atPath: path)
+      newPost()
+      refreshRecentDrafts()
+      statusMessage = "Deleted: \(draftName)"
+    } catch {
+      statusMessage = "Failed to delete draft: \(error.localizedDescription)"
+    }
+  }
+
+  func openCurrentDraft() {
+    guard let draftName = currentDraftName else {
+      statusMessage = "Select a draft first."
+      return
+    }
+    open(path: draftPath(named: draftName))
+  }
+
+  func syncFromGitHub() {
+    guard let repo = effectiveRepoPath() else {
+      statusMessage = "Sync failed: repo path is not a git repository."
+      return
+    }
+
+    runAction {
+      var logs: [String] = []
+      let fetch = self.runCommand("git", ["-C", repo, "fetch", "--all", "--prune"])
+      logs.append("$ git fetch --all --prune\n\(fetch.output)")
+      guard fetch.exitCode == 0 else {
+        return CommandResult(exitCode: fetch.exitCode, output: logs.joined(separator: "\n\n"))
+      }
+
+      let pull = self.runCommand("git", ["-C", repo, "pull", "--ff-only"])
+      logs.append("$ git pull --ff-only\n\(pull.output)")
+      return CommandResult(exitCode: pull.exitCode, output: logs.joined(separator: "\n\n"))
+    } completion: { result in
+      self.commandLog = result.output
+      if result.exitCode == 0 {
+        self.refreshRecentDrafts()
+        if let draftName = self.currentDraftName {
+          self.loadDraft(named: draftName)
+        }
+        self.statusMessage = "Synced latest content from GitHub."
+      } else {
+        self.statusMessage = "Sync failed. Check command log."
+      }
+    }
+  }
+
   func commitAndPush() {
-    guard !repoPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-      statusMessage = "Set a repo path first."
+    guard effectiveRepoPath() != nil else {
+      statusMessage = "Set a valid git repo path first."
       return
     }
 
     let message = commitMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-      ? "chore(content): add new writing draft"
+      ? "chore(content): update writing"
       : commitMessage
 
     runAction {
-      var combined: [String] = []
-
-      let add = self.runCommand("git", ["-C", self.repoPath, "add", "data/blog", "data/authors", "data/siteMetadata.js"])
-      combined.append("$ git add ...\n\(add.output)")
-      guard add.exitCode == 0 else { return CommandResult(exitCode: add.exitCode, output: combined.joined(separator: "\n\n")) }
-
-      let commit = self.runCommand("git", ["-C", self.repoPath, "commit", "-m", message])
-      combined.append("$ git commit -m \"\(message)\"\n\(commit.output)")
-
-      if commit.exitCode != 0 && !commit.output.contains("nothing to commit") {
-        return CommandResult(exitCode: commit.exitCode, output: combined.joined(separator: "\n\n"))
-      }
-
-      let push = self.runCommand("git", ["-C", self.repoPath, "push"])
-      combined.append("$ git push\n\(push.output)")
-
-      return CommandResult(exitCode: push.exitCode, output: combined.joined(separator: "\n\n"))
+      self.runGitPush(message: message)
     } completion: { result in
       self.commandLog = result.output
       if result.exitCode == 0 {
-        self.statusMessage = "Git push completed. Vercel should auto-deploy if connected to this repo."
+        self.statusMessage = "Git push completed."
       } else {
         self.statusMessage = "Git push failed. Check command log."
       }
@@ -202,29 +330,17 @@ final class WriterViewModel: ObservableObject {
   }
 
   func deployToVercel() {
-    guard !repoPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-      statusMessage = "Set a repo path first."
+    guard effectiveRepoPath() != nil else {
+      statusMessage = "Set a valid git repo path first."
+      return
+    }
+    guard !vercelToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      statusMessage = "No Vercel token found. Run `vercel login` once on this Mac."
       return
     }
 
     runAction {
-      if !self.deployHookURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        let hook = self.runCommand("curl", ["-sS", "-X", "POST", self.deployHookURL])
-        return CommandResult(exitCode: hook.exitCode, output: "$ curl -X POST <deploy-hook>\n\(hook.output)")
-      }
-
-      var env = ProcessInfo.processInfo.environment
-      if !self.vercelToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        env["VERCEL_TOKEN"] = self.vercelToken
-      }
-
-      var args = ["--prod", "--yes"]
-      if !self.vercelProjectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        args += ["--name", self.vercelProjectName]
-      }
-
-      let deploy = self.runCommand("vercel", args, environment: env, workingDirectory: self.repoPath)
-      return CommandResult(exitCode: deploy.exitCode, output: "$ vercel \(args.joined(separator: " "))\n\(deploy.output)")
+      self.runDeploy()
     } completion: { result in
       self.commandLog = result.output
       if result.exitCode == 0 {
@@ -236,20 +352,17 @@ final class WriterViewModel: ObservableObject {
   }
 
   func oneClickPublish() {
-    if !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-      let created = createDraft()
-      if !created {
-        return
-      }
+    guard saveCurrentPost() else {
+      return
     }
 
-    guard !repoPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-      statusMessage = "Set a repo path first."
+    guard effectiveRepoPath() != nil else {
+      statusMessage = "Set a valid git repo path first."
       return
     }
 
     let message = commitMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-      ? "chore(content): publish new writing"
+      ? "chore(content): publish \(currentDraftName ?? "writing update")"
       : commitMessage
 
     runAction {
@@ -267,7 +380,7 @@ final class WriterViewModel: ObservableObject {
     } completion: { result in
       self.commandLog = result.output
       if result.exitCode == 0 {
-        self.statusMessage = "One-click publish completed: draft, push, and deploy finished."
+        self.statusMessage = "One-click publish completed: save, push, deploy."
       } else {
         self.statusMessage = "One-click publish failed. Check command log."
       }
@@ -283,10 +396,81 @@ final class WriterViewModel: ObservableObject {
     NSWorkspace.shared.open(url)
   }
 
-  func openLatestDraft() {
-    guard let name = recentDrafts.first?.name else { return }
-    let fullPath = (repoPath as NSString).appendingPathComponent("data/blog/\(name)")
-    open(path: fullPath)
+  private func buildDraftContent(date: String) -> String {
+    let tags = selectedCategory.defaultTags.map { "'\($0)'" }.joined(separator: ", ")
+    let fallbackSummary = summary.isEmpty ? "New \(selectedCategory.rawValue.lowercased()) draft." : summary
+    let draftBody = body.isEmpty ? "Start writing..." : body
+
+    return """
+    ---
+    title: "\(title)"
+    date: "\(date)"
+    tags: [\(tags)]
+    draft: false
+    summary: "\(fallbackSummary)"
+    images: []
+    layout: PostLayout
+    author: "\(author)"
+    ---
+
+    \(draftBody)
+    """
+  }
+
+  private func draftsDirectoryPath() -> String {
+    (repoPath as NSString).appendingPathComponent("data/blog")
+  }
+
+  private func draftPath(named name: String) -> String {
+    (draftsDirectoryPath() as NSString).appendingPathComponent(name)
+  }
+
+  private func parseDraft(content: String) -> ParsedDraft? {
+    guard content.hasPrefix("---\n") else { return nil }
+    let parts = content.components(separatedBy: "\n---\n")
+    guard parts.count >= 2 else { return nil }
+
+    let frontmatter = parts[0].replacingOccurrences(of: "---\n", with: "")
+    let bodyPart = parts.dropFirst().joined(separator: "\n---\n").trimmingCharacters(in: .newlines)
+
+    let title = value(for: "title", in: frontmatter) ?? ""
+    let date = value(for: "date", in: frontmatter) ?? todayDateString()
+    let summary = value(for: "summary", in: frontmatter) ?? ""
+    let author = value(for: "author", in: frontmatter) ?? "Muhamad Firdaus Husaini"
+    let tags = tagsValue(in: frontmatter)
+
+    return ParsedDraft(title: title, date: date, summary: summary, author: author, tags: tags, body: bodyPart)
+  }
+
+  private func value(for key: String, in frontmatter: String) -> String? {
+    for line in frontmatter.split(separator: "\n") {
+      if line.hasPrefix("\(key):") {
+        let raw = line.dropFirst(key.count + 1).trimmingCharacters(in: .whitespaces)
+        return raw.trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
+      }
+    }
+    return nil
+  }
+
+  private func tagsValue(in frontmatter: String) -> [String] {
+    guard let raw = value(for: "tags", in: frontmatter) else { return [] }
+    let trimmed = raw.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+    if trimmed.isEmpty { return [] }
+
+    return trimmed
+      .split(separator: ",")
+      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "\"'")) }
+      .filter { !$0.isEmpty }
+  }
+
+  private func normalizedDate(_ input: String) -> String {
+    let cleaned = input.trimmingCharacters(in: .whitespacesAndNewlines)
+    return cleaned.isEmpty ? todayDateString() : cleaned
+  }
+
+  private func todayDateString() -> String {
+    String(ISO8601DateFormatter().string(from: Date()).prefix(10))
   }
 
   private func open(path: String) {
@@ -312,43 +496,72 @@ final class WriterViewModel: ObservableObject {
   }
 
   private func runGitPush(message: String) -> CommandResult {
+    guard let repo = effectiveRepoPath() else {
+      return CommandResult(exitCode: 1, output: "Repo path is not a git repository: \(repoPath)")
+    }
     var combined: [String] = []
 
-    let add = runCommand("git", ["-C", repoPath, "add", "data/blog", "data/authors", "data/siteMetadata.js"])
+    let add = runCommand("git", ["-C", repo, "add", "data/blog", "data/authors", "data/siteMetadata.js"])
     combined.append("$ git add ...\n\(add.output)")
     guard add.exitCode == 0 else {
       return CommandResult(exitCode: add.exitCode, output: combined.joined(separator: "\n\n"))
     }
 
-    let commit = runCommand("git", ["-C", repoPath, "commit", "-m", message])
+    let commit = runCommand("git", ["-C", repo, "commit", "-m", message])
     combined.append("$ git commit -m \"\(message)\"\n\(commit.output)")
     if commit.exitCode != 0 && !commit.output.contains("nothing to commit") {
       return CommandResult(exitCode: commit.exitCode, output: combined.joined(separator: "\n\n"))
     }
 
-    let push = runCommand("git", ["-C", repoPath, "push"])
+    let push = runCommand("git", ["-C", repo, "push"])
     combined.append("$ git push\n\(push.output)")
     return CommandResult(exitCode: push.exitCode, output: combined.joined(separator: "\n\n"))
   }
 
   private func runDeploy() -> CommandResult {
-    if !deployHookURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-      let hook = runCommand("curl", ["-sS", "-X", "POST", deployHookURL])
-      return CommandResult(exitCode: hook.exitCode, output: "$ curl -X POST <deploy-hook>\n\(hook.output)")
+    guard let repo = effectiveRepoPath() else {
+      return CommandResult(exitCode: 1, output: "Repo path is not a git repository: \(repoPath)")
     }
 
     var env = ProcessInfo.processInfo.environment
-    if !vercelToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-      env["VERCEL_TOKEN"] = vercelToken
+    env["VERCEL_TOKEN"] = vercelToken
+
+    let args = ["deploy", "--prod", "--yes", "--token", vercelToken]
+    let deploy = runCommand("vercel", args, environment: env, workingDirectory: repo)
+    return CommandResult(
+      exitCode: deploy.exitCode,
+      output: "$ vercel deploy --prod --yes --token ******\n\(deploy.output)"
+    )
+  }
+
+  private func effectiveRepoPath() -> String? {
+    let trimmed = repoPath.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+
+    var url = URL(fileURLWithPath: (trimmed as NSString).expandingTildeInPath).standardizedFileURL
+    var isDir: ObjCBool = false
+    if !FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) {
+      return nil
+    }
+    if !isDir.boolValue {
+      url.deleteLastPathComponent()
     }
 
-    var args = ["--prod", "--yes"]
-    if !vercelProjectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-      args += ["--name", vercelProjectName]
+    while true {
+      let gitPath = url.appendingPathComponent(".git").path
+      if FileManager.default.fileExists(atPath: gitPath) {
+        if repoPath != url.path {
+          repoPath = url.path
+        }
+        return url.path
+      }
+
+      let parent = url.deletingLastPathComponent()
+      if parent.path == url.path { break }
+      url = parent
     }
 
-    let deploy = runCommand("vercel", args, environment: env, workingDirectory: repoPath)
-    return CommandResult(exitCode: deploy.exitCode, output: "$ vercel \(args.joined(separator: " "))\n\(deploy.output)")
+    return nil
   }
 
   private func runCommand(
@@ -382,6 +595,69 @@ final class WriterViewModel: ObservableObject {
     let output = String(data: data, encoding: .utf8) ?? ""
     return CommandResult(exitCode: process.terminationStatus, output: output)
   }
+
+  private func detectDefaultRepoPath() -> String? {
+    if let existing = effectiveRepoPath() {
+      return existing
+    }
+
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    let candidates = [
+      "\(home)/Documents/GitHub/dauzziedev",
+      "\(home)/GitHub/dauzziedev",
+      FileManager.default.currentDirectoryPath,
+    ]
+
+    for candidate in candidates {
+      repoPath = candidate
+      if let resolved = effectiveRepoPath() {
+        return resolved
+      }
+    }
+
+    return nil
+  }
+
+  private func detectDefaultVercelToken() -> String {
+    let envToken = ProcessInfo.processInfo.environment["VERCEL_TOKEN"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if !envToken.isEmpty {
+      return envToken
+    }
+
+    let authPath = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.vercel/auth.json"
+    if let data = try? Data(contentsOf: URL(fileURLWithPath: authPath)),
+       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+       let token = json["token"] as? String,
+       !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      return token
+    }
+
+    if let token = loadTokenFromKeychain() {
+      return token
+    }
+
+    return ""
+  }
+
+  private func loadTokenFromKeychain() -> String? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: "DauzzieWriter",
+      kSecAttrAccount as String: "VERCEL_TOKEN",
+      kSecReturnData as String: true,
+      kSecMatchLimit as String: kSecMatchLimitOne,
+    ]
+
+    var item: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &item)
+    guard status == errSecSuccess,
+      let data = item as? Data,
+      let token = String(data: data, encoding: .utf8)
+    else {
+      return nil
+    }
+    return token
+  }
 }
 
 private struct ContentView: View {
@@ -393,24 +669,29 @@ private struct ContentView: View {
         Text("Dauzzie Writer")
           .font(.system(size: 28, weight: .bold, design: .rounded))
 
-        Text("Companion app for blog posts, poems, and stories")
+        Text("Companion app for blog posts, poems, stories, and one-click publishing")
           .foregroundStyle(.secondary)
 
         GroupBox("Workspace") {
           VStack(spacing: 10) {
-            TextField("Website repo path", text: $model.repoPath)
+            TextField("Repo path", text: $model.repoPath)
               .textFieldStyle(.roundedBorder)
-            HStack(spacing: 8) {
-              TextField("Vercel Project Name (optional)", text: $model.vercelProjectName)
-                .textFieldStyle(.roundedBorder)
-              SecureField("VERCEL_TOKEN (optional)", text: $model.vercelToken)
-                .textFieldStyle(.roundedBorder)
+            HStack {
+              Text("Vercel auth:")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+              Text(model.vercelAuthStatus)
+                .font(.caption)
             }
-            TextField("Vercel Deploy Hook URL (optional)", text: $model.deployHookURL)
-              .textFieldStyle(.roundedBorder)
+            .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 8) {
-              Button("Save Settings") { model.saveSettings() }
+              Button("Auto Detect") { model.autoConfigureWorkspace() }
                 .buttonStyle(.borderedProminent)
+              Button("Save Repo Path") { model.saveSettings() }
+                .buttonStyle(.borderedProminent)
+              Button("Sync from GitHub") { model.syncFromGitHub() }
+                .buttonStyle(.borderedProminent)
+                .disabled(model.isRunningAction)
               Button("Open Repo") { model.openRepo() }
                 .buttonStyle(.bordered)
               Button("Open Local Site") { model.openLocalSite() }
@@ -427,17 +708,24 @@ private struct ContentView: View {
           }
         }
 
-        GroupBox("Create Draft") {
+        GroupBox("Post Editor") {
           VStack(spacing: 10) {
             HStack(spacing: 12) {
               TextField("Title", text: $model.title)
                 .textFieldStyle(.roundedBorder)
-              Picker("Type", selection: $model.selectedType) {
-                ForEach(WritingType.allCases) { type in
+              Picker("Category", selection: $model.selectedCategory) {
+                ForEach(PostCategory.allCases) { type in
                   Text(type.rawValue).tag(type)
                 }
               }
-              .frame(width: 150)
+              .frame(width: 170)
+            }
+
+            HStack(spacing: 12) {
+              TextField("Date (YYYY-MM-DD)", text: $model.postDate)
+                .textFieldStyle(.roundedBorder)
+              TextField("Author", text: $model.author)
+                .textFieldStyle(.roundedBorder)
             }
 
             TextField("Summary", text: $model.summary)
@@ -445,14 +733,33 @@ private struct ContentView: View {
 
             TextEditor(text: $model.body)
               .font(.system(size: 14, weight: .regular, design: .monospaced))
-              .frame(minHeight: 180)
+              .frame(minHeight: 200)
               .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.25)))
 
             HStack(spacing: 8) {
-              Button("Create Draft") { model.createDraft() }
-                .buttonStyle(.borderedProminent)
-              Button("Open Latest Draft") { model.openLatestDraft() }
+              Button("New Post") { model.newPost() }
                 .buttonStyle(.bordered)
+              Button("Create") { _ = model.createDraft() }
+                .buttonStyle(.borderedProminent)
+              Button("Save Changes") { _ = model.saveCurrentPost() }
+                .buttonStyle(.borderedProminent)
+              Button("Delete") { model.deleteCurrentDraft() }
+                .buttonStyle(.bordered)
+                .tint(.red)
+              Button("Open Current") { model.openCurrentDraft() }
+                .buttonStyle(.bordered)
+            }
+
+            if let draftName = model.currentDraftName {
+              Text("Editing: \(draftName)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+              Text("Editing: unsaved draft")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
         }
@@ -462,7 +769,7 @@ private struct ContentView: View {
             TextField("Commit message", text: $model.commitMessage)
               .textFieldStyle(.roundedBorder)
             HStack(spacing: 8) {
-              Button("Commit + Push (GitHub)") { model.commitAndPush() }
+              Button("Commit + Push") { model.commitAndPush() }
                 .buttonStyle(.borderedProminent)
                 .disabled(model.isRunningAction)
               Button("Deploy to Vercel") { model.deployToVercel() }
@@ -493,19 +800,26 @@ private struct ContentView: View {
 
         Text("Recent Drafts")
           .font(.headline)
+
         List(model.recentDrafts) { draft in
-          VStack(alignment: .leading, spacing: 2) {
-            Text(draft.name).font(.system(size: 13, weight: .semibold, design: .rounded))
-            Text(draft.modifiedAt.formatted(date: .abbreviated, time: .shortened))
-              .foregroundStyle(.secondary)
-              .font(.caption)
+          HStack {
+            VStack(alignment: .leading, spacing: 2) {
+              Text(draft.name)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+              Text(draft.modifiedAt.formatted(date: .abbreviated, time: .shortened))
+                .foregroundStyle(.secondary)
+                .font(.caption)
+            }
+            Spacer()
+            Button("Load") { model.loadDraft(named: draft.name) }
+              .buttonStyle(.bordered)
           }
         }
-        .frame(minHeight: 160)
+        .frame(minHeight: 220)
       }
       .padding(20)
     }
-    .frame(minWidth: 920, minHeight: 820)
+    .frame(minWidth: 980, minHeight: 900)
   }
 }
 

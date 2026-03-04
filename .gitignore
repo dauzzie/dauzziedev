@@ -39,3 +39,25 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
+# macOS / Finder
+._*
+.Spotlight-V100
+.Trashes
+
+# Editor/IDE local files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# SwiftPM / Xcode (local build artifacts)
+macos/DauzzieWriter/.build/
+macos/DauzzieWriter/.swiftpm/
+macos/DauzzieWriter/Packages/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/

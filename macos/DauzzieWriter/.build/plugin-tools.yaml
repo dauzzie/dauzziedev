@@ -3,74 +3,59 @@ client:
   file-system: device-agnostic
 tools: {}
 targets:
-  "DauzzieWriter-arm64-apple-macosx26.0-debug.exe": ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe>"]
-  "DauzzieWriter-arm64-apple-macosx26.0-debug.module": ["<DauzzieWriter-arm64-apple-macosx26.0-debug.module>"]
+  "DauzzieWriter-arm64-apple-macosx26.0-release.exe": ["<DauzzieWriter-arm64-apple-macosx26.0-release.exe>"]
+  "DauzzieWriter-arm64-apple-macosx26.0-release.module": ["<DauzzieWriter-arm64-apple-macosx26.0-release.module>"]
   "PackageStructure": ["<PackageStructure>"]
-  "main": ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe>","<DauzzieWriter-arm64-apple-macosx26.0-debug.module>"]
-  "test": ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe>","<DauzzieWriter-arm64-apple-macosx26.0-debug.module>"]
+  "main": ["<DauzzieWriter-arm64-apple-macosx26.0-release.exe>","<DauzzieWriter-arm64-apple-macosx26.0-release.module>"]
+  "test": ["<DauzzieWriter-arm64-apple-macosx26.0-release.exe>","<DauzzieWriter-arm64-apple-macosx26.0-release.module>"]
 default: "main"
 nodes:
   "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/Sources/DauzzieWriter/":
     is-directory-structure: true
     content-exclusion-patterns: [".git",".build"]
-  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter":
-    is-mutated: true
 commands:
-  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter-entitlement.plist":
-    tool: write-auxiliary-file
-    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter-entitlement.plist"]
-    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter-entitlement.plist"
-
-  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/sources":
+  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/sources":
     tool: write-auxiliary-file
     inputs: ["<sources-file-list>","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/Sources/DauzzieWriter/main.swift"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/sources"]
-    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/sources"
+    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/sources"]
+    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/sources"
 
-  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.product/Objects.LinkFileList":
+  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.product/Objects.LinkFileList":
     tool: write-auxiliary-file
-    inputs: ["<link-file-list>","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/main.swift.o"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.product/Objects.LinkFileList"]
-    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.product/Objects.LinkFileList"
+    inputs: ["<link-file-list>","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/main.swift.o"]
+    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.product/Objects.LinkFileList"
 
-  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+  "/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt":
     tool: write-auxiliary-file
     inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"]
     always-out-of-date: "true"
-    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    description: "Write auxiliary file /Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
 
-  "<DauzzieWriter-arm64-apple-macosx26.0-debug.exe>":
+  "<DauzzieWriter-arm64-apple-macosx26.0-release.exe>":
     tool: phony
-    inputs: ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe-CodeSigning>"]
-    outputs: ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe>"]
+    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter"]
+    outputs: ["<DauzzieWriter-arm64-apple-macosx26.0-release.exe>"]
 
-  "<DauzzieWriter-arm64-apple-macosx26.0-debug.module>":
+  "<DauzzieWriter-arm64-apple-macosx26.0-release.module>":
     tool: phony
-    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/Modules/DauzzieWriter.swiftmodule"]
-    outputs: ["<DauzzieWriter-arm64-apple-macosx26.0-debug.module>"]
+    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/Modules/DauzzieWriter.swiftmodule"]
+    outputs: ["<DauzzieWriter-arm64-apple-macosx26.0-release.module>"]
 
-  "C.DauzzieWriter-arm64-apple-macosx26.0-debug.exe":
+  "C.DauzzieWriter-arm64-apple-macosx26.0-release.exe":
     tool: shell
-    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.product/Objects.LinkFileList"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter"]
-    description: "Linking ./.build/arm64-apple-macosx/debug/DauzzieWriter"
-    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug","-o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter","-module-name","DauzzieWriter","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-alias","-Xlinker","_DauzzieWriter_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx13.0","-Xlinker","-add_ast_path","-Xlinker","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/Modules/DauzzieWriter.swiftmodule","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
+    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.product/Objects.LinkFileList"]
+    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter"]
+    description: "Linking ./.build/arm64-apple-macosx/release/DauzzieWriter"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release","-o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter","-module-name","DauzzieWriter","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-dead_strip","-Xlinker","-alias","-Xlinker","_DauzzieWriter_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx13.0","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
 
-  "C.DauzzieWriter-arm64-apple-macosx26.0-debug.exe-entitlements":
+  "C.DauzzieWriter-arm64-apple-macosx26.0-release.module":
     tool: shell
-    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter-entitlement.plist"]
-    outputs: ["<DauzzieWriter-arm64-apple-macosx26.0-debug.exe-CodeSigning>"]
-    description: "Applying debug entitlements to ./.build/arm64-apple-macosx/debug/DauzzieWriter"
-    args: ["codesign","--force","--sign","-","--entitlements","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter-entitlement.plist","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter"]
-
-  "C.DauzzieWriter-arm64-apple-macosx26.0-debug.module":
-    tool: shell
-    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/Sources/DauzzieWriter/main.swift","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/sources"]
-    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/Modules/DauzzieWriter.swiftmodule"]
+    inputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/Sources/DauzzieWriter/main.swift","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/sources"]
+    outputs: ["/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/main.swift.o","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/Modules/DauzzieWriter.swiftmodule"]
     description: "Compiling Swift Module 'DauzzieWriter' (1 sources)"
-    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","DauzzieWriter","-emit-dependencies","-emit-module","-emit-module-path","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/Modules/DauzzieWriter.swiftmodule","-output-file-map","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/output-file-map.json","-incremental","-c","@/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/DauzzieWriter.build/sources","-I","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j12","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","DauzzieWriter_main","-parse-as-library","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","dauzziewriter"]
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","DauzzieWriter","-emit-dependencies","-emit-module","-emit-module-path","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/Modules/DauzzieWriter.swiftmodule","-output-file-map","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/output-file-map.json","-whole-module-optimization","-num-threads","12","-c","@/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/DauzzieWriter.build/sources","-I","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/Modules","-target","arm64-apple-macosx13.0","-whole-module-optimization","-num-threads","12","-serialize-diagnostics","-O","-j12","-DSWIFT_PACKAGE","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/dauzzie/Documents/GitHub/dauzziedev/macos/DauzzieWriter/.build/arm64-apple-macosx/release/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","DauzzieWriter_main","-parse-as-library","-color-diagnostics","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","dauzziewriter"]
 
   "PackageStructure":
     tool: package-structure-tool
