@@ -138,8 +138,8 @@ export default function CareerHub({ posts }: CareerHubProps) {
               Local Companion
             </p>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              Use the macOS writer app in `macos/DauzzieWriter` to create journal and poetry
-              drafts directly into this website.
+              Use the macOS writer app in `macos/DauzzieWriter` to create journal and poetry drafts
+              directly into this website.
             </p>
           </div>
           <Link href="/about" className="apple-button-primary mt-6 w-max">

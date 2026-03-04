@@ -51,9 +51,19 @@ export default function usePaletteOptions() {
     },
     { id: '/poetry', name: 'Poetry', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     { id: '/music', name: 'Music', icon: <HiOutlineMusicNote />, onSelect: (v) => router.push(v) },
-    { id: '/projects', name: 'Projects', icon: <HiOutlineDocumentAdd />, onSelect: (v) => router.push(v) },
+    {
+      id: '/projects',
+      name: 'Projects',
+      icon: <HiOutlineDocumentAdd />,
+      onSelect: (v) => router.push(v),
+    },
     { id: '/about', name: 'About', icon: <HiOutlineUser />, onSelect: (v) => router.push(v) },
-    { id: '/uses', name: 'Uses', icon: <HiOutlineDocumentDuplicate />, onSelect: (v) => router.push(v) },
+    {
+      id: '/uses',
+      name: 'Uses',
+      icon: <HiOutlineDocumentDuplicate />,
+      onSelect: (v) => router.push(v),
+    },
   ]
 
   const blogOptions: PaletteOption[] = sortedPosts.map((post) => ({

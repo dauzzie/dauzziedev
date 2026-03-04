@@ -2,7 +2,7 @@ import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 
 type Params = { page: string }
 
-export const getServerSideProps: GetServerSideProps<{}, Params> = async (
+export const getServerSideProps: GetServerSideProps<Record<string, never>, Params> = async (
   context: GetServerSidePropsContext<Params>
 ) => {
   const page = context.params?.page || '1'
