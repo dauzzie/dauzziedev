@@ -26,7 +26,15 @@ module.exports = {
         '8.5xl': '7rem',
       },
       fontFamily: {
-        sans: ['Mukta', ...defaultTheme.fontFamily.sans],
+        sans: [
+          'SF Pro Display',
+          'SF Pro Text',
+          'SF Pro',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          ...defaultTheme.fontFamily.sans,
+        ],
         serif: ['Times New Roman',...defaultTheme.fontFamily.serif],
       },
       gradientColorStops: {
@@ -39,16 +47,16 @@ module.exports = {
       },
       colors: {
         primary:{
-          50:"#F8F0FE",
-          100:"#EEDDFD",
-          200:"#DCBBFC",
-          300:"#CB99FA",
-          400:"#BA77F9",
-          500:"#A855F7",
-          600:"#8815F4",
-          700:"#6609BE",
-          800:"#44067F",
-          900:"#22033F"
+          50:"#eef6ff",
+          100:"#d9ebff",
+          200:"#bcdcff",
+          300:"#8cc2ff",
+          400:"#5ca4ff",
+          500:"#0a84ff",
+          600:"#006ce6",
+          700:"#0055b4",
+          800:"#00448d",
+          900:"#003468"
         },
         success: {
           100: '#E4FCDB',

@@ -10,38 +10,30 @@ export default function Header() {
   const router = useRouter()
 
   return (
-    <header className="py-5 md:py-10 z-40 bg-transparent">
-      <div className="flex items-center justify-between max-w-5xl mx-auto">
-        <div>
-          <Link href="/" className="flex items-center justify-between" aria-label="Home">
-            <div
-              className={classNames(
-                'hidden text-3xl font-extrabold sm:block horizontal-underline',
-                {
-                  'horizontal-underline-active': router.pathname === '/',
-                }
-              )}
-            >
-              🏠
-            </div>
-          </Link>
-        </div>
+    <header className="py-5 md:py-8 z-40 bg-transparent">
+      <div className="apple-nav flex items-center justify-between max-w-5xl mx-auto">
+        <Link href="/" className="flex items-center gap-2" aria-label="Home">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary-500 text-xs font-bold text-white">
+            D
+          </span>
+          <span className="hidden text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-50 sm:block">
+            dauzzie.dev
+          </span>
+        </Link>
         <div className="flex items-center text-base leading-5 space-x-3">
-          <div className="hidden sm:flex space-x-5">
+          <div className="hidden sm:flex items-center space-x-2">
             {headerNavLinks.map(({ title, href }) => {
               const active = router.pathname.includes(href)
               return (
                 <Link
                   key={title}
                   href={href}
-                  className={classNames('horizontal-underline text-base', {
-                    'horizontal-underline-active': active,
+                  className={classNames('apple-nav-link', {
+                    'apple-nav-link-active': active,
                   })}
                   aria-label={title}
                 >
-                  <span className="font-bold tracking-wide text-gray-900 dark:text-gray-100">
-                    {title}
-                  </span>
+                  {title}
                 </Link>
               )
             })}

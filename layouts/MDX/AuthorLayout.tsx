@@ -17,11 +17,9 @@ export default function AuthorLayout({ children, content }: Props) {
       <div className="pt-8">
         <div className="flex flex-col-reverse items-center justify-between mb-8 sm:flex-row sm:items-center">
           <div className="text-center sm:text-left">
-            <div className="glitch py-8">
-              <h1 className="text-xl font-bold md:text-3xl lg:text-4xl">Dausi Husaini</h1>
-              <h1 className="text-xl font-bold md:text-3xl lg:text-4xl">Dausi Husaini</h1>
-              <h1 className="text-xl font-bold md:text-3xl lg:text-4xl">Dausi Husaini</h1>
-            </div>
+            <h1 className="py-5 text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50 md:text-3xl lg:text-4xl">
+              {name}
+            </h1>
             <h2 className="text-sm font-normal md:text-base">
               {occupation} <span className="font-semibold">{company}</span>
             </h2>

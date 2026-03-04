@@ -1,0 +1,46 @@
+# DauzzieWriter (macOS companion app)
+
+Local SwiftUI app to help you create and manage writing drafts for this website.
+
+## Install as a real macOS app
+
+```bash
+cd macos/DauzzieWriter
+./scripts/install-app.sh
+```
+
+This installs `DauzzieWriter.app` to `/Applications` (or `~/Applications` if needed).
+
+## Run
+
+```bash
+cd macos/DauzzieWriter
+swift run
+```
+
+## Open in Xcode
+
+```bash
+cd macos/DauzzieWriter
+open Package.swift
+```
+
+## What it does
+
+- Creates MDX drafts in `data/blog/`
+- Supports `Blog`, `Poem`, `Story`, and `Note` templates
+- Shows a rotating daily writing prompt
+- Lists latest draft files
+- Opens repo, local site, and latest draft quickly
+- Commits and pushes content changes to GitHub
+- Triggers deployment to Vercel (via Deploy Hook or Vercel CLI)
+- One-click publish flow: create draft (optional) -> commit -> push -> deploy
+
+## Vercel deploy options in app
+
+Use either:
+
+1. `Deploy Hook URL` (recommended, no CLI dependency)
+2. `VERCEL_TOKEN` + optional project name (uses `vercel --prod --yes`)
+
+If your GitHub repo is connected to Vercel, the `Commit + Push (GitHub)` button also triggers auto deployment.

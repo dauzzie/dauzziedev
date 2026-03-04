@@ -14,10 +14,9 @@ interface CommonSEOProps {
         '@type': string
         url: string
       }[]
-  twImage: string
 }
 
-const CommonSEO = ({ title, description, ogType, ogImage, twImage }: CommonSEOProps) => {
+const CommonSEO = ({ title, description, ogType, ogImage }: CommonSEOProps) => {
   const router = useRouter()
   return (
     <Head>
@@ -38,7 +37,7 @@ const CommonSEO = ({ title, description, ogType, ogImage, twImage }: CommonSEOPr
       <meta name="twitter:site" content={siteMetadata.twitter} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={twImage} /> */}
+      <meta name="twitter:image" content={siteMetadata.socialBanner} /> */}
     </Head>
   )
 }
@@ -50,31 +49,15 @@ interface PageSEOProps {
 
 export const PageSEO = ({ title, description }: PageSEOProps) => {
   const ogImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner
-  const twImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner
-  return (
-    <CommonSEO
-      title={title}
-      description={description}
-      ogType="website"
-      ogImage={ogImageUrl}
-      twImage={twImageUrl}
-    />
-  )
+  return <CommonSEO title={title} description={description} ogType="website" ogImage={ogImageUrl} />
 }
 
 export const TagSEO = ({ title, description }: PageSEOProps) => {
   const ogImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner
-  const twImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner
   const router = useRouter()
   return (
     <>
-      <CommonSEO
-        title={title}
-        description={description}
-        ogType="website"
-        ogImage={ogImageUrl}
-        twImage={twImageUrl}
-      />
+      <CommonSEO title={title} description={description} ogType="website" ogImage={ogImageUrl} />
       <Head>
         <link
           rel="alternate"
@@ -149,8 +132,6 @@ export const BlogSEO = ({
     description: summary,
   }
 
-  const twImageUrl = featuredImages[0].url
-
   return (
     <>
       <CommonSEO
@@ -158,7 +139,6 @@ export const BlogSEO = ({
         description={summary || ''}
         ogType="article"
         ogImage={featuredImages}
-        twImage={twImageUrl}
       />
       <Head>
         {date && <meta property="article:published_time" content={publishedAt} />}

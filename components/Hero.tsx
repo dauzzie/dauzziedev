@@ -1,86 +1,60 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import siteMetadata from '@/data/siteMetadata'
 import Link from 'next/link'
-import { ReactElement, useContext, useEffect, useRef } from 'react'
-import { HiOutlineArrowNarrowDown } from 'react-icons/hi'
-import FadeDown from './Animations/FadeDown'
-import FadeRight from './Animations/FadeRight'
-import FadeUp from './Animations/FadeUp'
-import { renderCanvas } from './renderCanvas'
-import { ScrollContext } from './ScrollObserver'
+import { ReactElement } from 'react'
 
 export default function Hero(): ReactElement {
-  const ref = useRef<HTMLHeadingElement>(null)
-  const { scrollY } = useContext(ScrollContext)
-
-  let progress = 0
-  const { current: elContainer } = ref
-
-  if (elContainer) {
-    progress = Math.min(1, scrollY / elContainer.clientHeight)
-  }
-
-  useEffect(() => {
-    renderCanvas()
-  }, [])
-
   return (
-    <div>
+    <section className="relative overflow-hidden">
       <h1 className="sr-only">
         Hello I'm Dausi Husaini, I'm a software engineer, and I love building things for the web.
       </h1>
       <motion.div
-        className="relative z-10 flex h-[calc(100vh-81px)] md:h-[calc(100vh-116px)] items-center"
-        animate={{
-          transform: `translateY(${progress * 20}vh)`,
-        }}
-        transition={{ type: 'spring', stiffness: 50 }}
+        className="apple-hero-orb apple-hero-orb-blue"
+        animate={{ x: [0, 18, -6, 0], y: [0, -12, 10, 0], scale: [1, 1.06, 0.97, 1] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="apple-hero-orb apple-hero-orb-cyan"
+        animate={{ x: [0, -14, 6, 0], y: [0, 12, -8, 0], scale: [1, 0.96, 1.04, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="relative z-10 flex min-h-[calc(86vh-81px)] md:min-h-[calc(88vh-116px)] items-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <AnimatePresence>
-          <div className="w-screen px-4 max-w-3xl mx-auto sm:px-9 xl:max-w-5xl xl:px-0">
-            <div className="-mt-36">
-              <div ref={ref} className="flex flex-col space-y-2 cursor-default">
-                <FadeUp duration={0.6}>
-                  <div id="home-div" className="glitch">
-                    <h1 id="home" className="text-5xl sm:text-7xl md:text-8xl xl:text-9xl">
-                      DAUSI
-                    </h1>
-                    <h1 id="home" className="text-5xl sm:text-7xl md:text-8xl xl:text-9xl">
-                      DAUSI
-                    </h1>
-                    <h1 id="home" className="text-5xl sm:text-7xl md:text-8xl xl:text-9xl">
-                      DAUSI
-                    </h1>
-                  </div>
-                </FadeUp>
-                <FadeRight duration={0.5} delay={0.5}>
-                  <Link
-                    href="/about"
-                    className="underline-magical cursor-pointer w-max text-md sm:text-lg md:text-xl xl:text-2xl"
-                  >
-                    About me &rarr;
-                  </Link>
-                </FadeRight>
-              </div>
-              {/* <div className="absolute bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2">
-                <div
-                  role="presentation"
-                  className="flex flex-col justify-center items-center cursor-pointer"
-                  onClick={() => {
-                    const intro = document.querySelector('#intro')
-
-                    intro?.scrollIntoView({ behavior: 'smooth' })
-                  }}
-                >
-                  <FadeDown duration={1} delay={1.2}>
-                    <HiOutlineArrowNarrowDown size={20} />
-                  </FadeDown>
-                </div>
-              </div> */}
+        <div className="w-screen px-4 max-w-3xl mx-auto sm:px-9 xl:max-w-5xl xl:px-0">
+          <motion.div
+            className="apple-glass-card apple-glass-sheen p-8 md:p-12"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.12, ease: 'easeOut' }}
+          >
+            <p className="text-sm font-semibold tracking-[0.16em] text-primary-500 uppercase">
+              Story + Career Lab
+            </p>
+            <h2
+              className="rave-title mt-4 text-5xl font-semibold tracking-tight text-gray-950 dark:text-gray-50 sm:text-7xl"
+              data-text={siteMetadata.author}
+            >
+              {siteMetadata.author}
+            </h2>
+            <p className="mt-5 max-w-2xl text-base text-gray-600 dark:text-gray-300 sm:text-lg">
+              {siteMetadata.slogan}
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/blog" className="apple-button-primary">
+                Enter Story Hub
+              </Link>
+              <Link href="/about" className="apple-button-secondary">
+                Career Timeline
+              </Link>
             </div>
-          </div>
-        </AnimatePresence>
+          </motion.div>
+        </div>
       </motion.div>
-      <canvas className="bg-skin-base pointer-events-none absolute inset-0" id="canvas"></canvas>
-    </div>
+    </section>
   )
 }

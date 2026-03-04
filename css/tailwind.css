@@ -16,6 +16,23 @@ html {
   scrollbar-width: none; /* Firefox */
 }
 
+body {
+  @apply text-gray-800 dark:text-gray-100;
+  background:
+    radial-gradient(circle at top left, rgba(10, 132, 255, 0.18), transparent 36%),
+    radial-gradient(circle at 90% 18%, rgba(94, 234, 212, 0.17), transparent 30%),
+    radial-gradient(circle at 75% 55%, rgba(236, 72, 153, 0.12), transparent 38%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(10, 132, 255, 0.23), transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.18), transparent 28%),
+    radial-gradient(circle at 72% 62%, rgba(236, 72, 153, 0.18), transparent 35%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
 html::-webkit-scrollbar {
   display: none;
 }
@@ -36,26 +53,187 @@ input:-webkit-autofill:focus {
 
 .horizontal-underline {
   border-bottom-width: 0;
-  background-image: linear-gradient(transparent, transparent), linear-gradient(#de1d8d, #de1d8d);
-  background-size: 0 3px;
+  background-image: linear-gradient(transparent, transparent), linear-gradient(#0a84ff, #0a84ff);
+  background-size: 0 2px;
   background-position: 0 100%;
   background-repeat: no-repeat;
-  transition: background-size 0.5s ease-in-out;
+  transition: background-size 0.25s ease-in-out;
 }
 
 .horizontal-underline:hover {
-  background-size: 100% 3px;
+  background-size: 100% 2px;
   background-position: 0 100%;
 }
 
 .horizontal-underline-active {
-  background-size: 100% 3px;
+  background-size: 100% 2px;
   background-position: 0 100%;
 }
 
 #nprogress .bar {
-  background: #bb39e3 !important;
+  background: #0a84ff !important;
   height: 4px !important;
+}
+
+.apple-nav {
+  @apply rounded-2xl border border-white/60 bg-white/75 px-4 py-3 backdrop-blur-xl shadow-sm dark:border-white/10 dark:bg-gray-900/60;
+}
+
+.apple-nav-link {
+  @apply rounded-full px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-900/5 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/10 dark:hover:text-white;
+}
+
+.apple-nav-link-active {
+  @apply bg-primary-500 text-white hover:bg-primary-500 hover:text-white dark:bg-primary-500 dark:text-white;
+}
+
+.apple-glass-card {
+  @apply rounded-3xl border border-white/70 bg-white/70 backdrop-blur-xl shadow-[0_20px_70px_-35px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-gray-900/60;
+}
+
+.apple-glass-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.apple-glass-sheen::after {
+  content: '';
+  position: absolute;
+  inset: -20% auto -20% -42%;
+  width: 30%;
+  transform: rotate(14deg);
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.06) 65%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: glass-sweep 8.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.dark .apple-glass-sheen::after {
+  background: linear-gradient(
+    110deg,
+    rgba(148, 163, 184, 0) 0%,
+    rgba(148, 163, 184, 0.06) 35%,
+    rgba(248, 250, 252, 0.18) 50%,
+    rgba(148, 163, 184, 0.04) 65%,
+    rgba(148, 163, 184, 0) 100%
+  );
+}
+
+.apple-button-primary {
+  @apply inline-flex items-center rounded-full bg-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600;
+}
+
+.apple-button-secondary {
+  @apply inline-flex items-center rounded-full border border-gray-200 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-white dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-100 dark:hover:bg-gray-900;
+}
+
+.apple-hero-orb {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+}
+
+.apple-hero-orb-blue {
+  width: 20rem;
+  height: 20rem;
+  left: -4rem;
+  top: 4rem;
+  background: rgba(10, 132, 255, 0.26);
+}
+
+.apple-hero-orb-cyan {
+  width: 16rem;
+  height: 16rem;
+  right: -2rem;
+  top: 9rem;
+  background: rgba(236, 72, 153, 0.24);
+}
+
+.rave-title {
+  position: relative;
+  width: max-content;
+}
+
+.rave-title::before,
+.rave-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.rave-title::before {
+  color: rgba(236, 72, 153, 0.8);
+  transform: translate(2px, 0);
+  animation: rave-shift-left 3s infinite linear alternate;
+}
+
+.rave-title::after {
+  color: rgba(10, 132, 255, 0.75);
+  transform: translate(-2px, 0);
+  animation: rave-shift-right 2.8s infinite linear alternate;
+}
+
+.rave-tile {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.32)),
+    radial-gradient(circle at 30% 20%, rgba(10, 132, 255, 0.12), transparent 55%);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.rave-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(10, 132, 255, 0.45);
+  box-shadow: 0 18px 36px -26px rgba(10, 132, 255, 0.7);
+}
+
+.dark .rave-tile {
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.65)),
+    radial-gradient(circle at 30% 20%, rgba(10, 132, 255, 0.2), transparent 55%);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+@keyframes rave-shift-left {
+  0% {
+    transform: translate(1px, 0);
+  }
+  100% {
+    transform: translate(4px, -1px);
+  }
+}
+
+@keyframes rave-shift-right {
+  0% {
+    transform: translate(-1px, 0);
+  }
+  100% {
+    transform: translate(-4px, 1px);
+  }
+}
+
+@keyframes glass-sweep {
+  0% {
+    left: -42%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  48% {
+    left: 118%;
+    opacity: 0.95;
+  }
+  100% {
+    left: 118%;
+    opacity: 0;
+  }
 }
 
 .introText {

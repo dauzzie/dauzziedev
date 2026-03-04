@@ -2,11 +2,19 @@ import { MDXLayoutRenderer } from '@/components/MDXComponents'
 import PageTitle from '@/components/PageTitle'
 import ScrollProgressBar from '@/components/ScrollProgressBar'
 import MainLayout from '@/layouts/MainLayout'
-import { coreContent, sortedBlogPost } from '@/lib/utils/contentlayer'
+import { CoreContent, coreContent, sortedBlogPost } from '@/lib/utils/contentlayer'
+import type { Blog } from 'contentlayer/generated'
 import { allBlogs } from 'contentlayer/generated'
-import { InferGetStaticPropsType } from 'next'
+import { GetStaticPropsContext } from 'next'
 
 const DEFAULT_LAYOUT = 'PostLayout'
+
+interface BlogPageProps {
+  post: Blog | null
+  author: string
+  prev: CoreContent<Blog> | null
+  next: CoreContent<Blog> | null
+}
 
 export async function getStaticPaths() {
   const posts = sortedBlogPost(allBlogs)
@@ -16,7 +24,10 @@ export async function getStaticPaths() {
   }
 }
 
-export const getStaticProps = async ({ params }: any) => {
+export const getStaticProps = async ({ params }: GetStaticPropsContext<{ slug: string[] }>) => {
+  if (!params?.slug) {
+    return { notFound: true }
+  }
   const slug = (params.slug as string[]).join('/')
   const sortedPosts = sortedBlogPost(allBlogs)
   const postIndex = sortedPosts.findIndex((p) => p.slug === slug)
@@ -26,7 +37,10 @@ export const getStaticProps = async ({ params }: any) => {
   const nextContent = sortedPosts[postIndex - 1] || null
   const next = nextContent ? coreContent(nextContent) : null
   const post = sortedPosts.find((p) => p.slug === slug)
-  const author = post?.author || ['default']
+  if (!post) {
+    return { notFound: true }
+  }
+  const author = post.author || ['default']
 
   return {
     props: {
@@ -38,17 +52,12 @@ export const getStaticProps = async ({ params }: any) => {
   }
 }
 
-export default function Blog({
-  post,
-  author,
-  prev,
-  next,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Blog({ post, author, prev, next }: BlogPageProps) {
   return (
     <>
       <ScrollProgressBar />
       <MainLayout>
-        {post && 'draft' in post && post.draft !== true ? (
+        {post ? (
           <MDXLayoutRenderer
             layout={post.layout || DEFAULT_LAYOUT}
             toc={post.toc}

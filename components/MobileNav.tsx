@@ -39,7 +39,7 @@ const MobileNav = () => {
         </svg>
       </button>
       <div
-        className={`fixed w-full h-full top-0 right-0 bg-white dark:bg-black opacity-95 z-20 transform ease-in-out duration-300 ${
+        className={`fixed w-full h-full top-0 right-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl z-20 transform ease-in-out duration-300 ${
           navShow ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -70,7 +70,7 @@ const MobileNav = () => {
               href="/"
               onClick={() => setNavShow(!navShow)}
               className={classNames(
-                'horizontal-underline backdrop:text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100',
+                'horizontal-underline text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100',
                 { 'horizontal-underline-active': router.pathname === '/' }
               )}
             >
@@ -86,7 +86,7 @@ const MobileNav = () => {
                   href={href}
                   onClick={() => setNavShow(!navShow)}
                   className={classNames(
-                    'horizontal-underline backdrop:text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100',
+                    'horizontal-underline text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100',
                     { 'horizontal-underline-active': active }
                   )}
                   aria-label={title}

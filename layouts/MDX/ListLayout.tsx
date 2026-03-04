@@ -26,17 +26,9 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
     <>
       <div className="">
         <div className="pt-8 pb-3 rounded-lg space-y-2 md:space-y-5">
-          <div className="glitch py-8">
-            <h1 className="text-3xl font-extrabold leading-9 tracking-tight sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
-              {title}
-            </h1>
-            <h1 className="text-3xl font-extrabold leading-9 tracking-tight sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
-              {title}
-            </h1>
-            <h1 className="text-3xl font-extrabold leading-9 tracking-tight sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
-              {title}
-            </h1>
-          </div>
+          <h1 className="py-5 text-3xl font-semibold leading-9 tracking-tight text-gray-900 dark:text-gray-50 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
+            {title}
+          </h1>
 
           <div className="relative max-w-full">
             <input

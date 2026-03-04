@@ -4,7 +4,7 @@ import MainLayout from '@/layouts/MainLayout'
 import ListLayout from '@/layouts/MDX/ListLayout'
 import { allCoreContent } from '@/lib/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
-import { InferGetStaticPropsType } from 'next'
+import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import { sortedBlogPost } from '../../../lib/utils/contentlayer'
 import { POSTS_PER_PAGE } from '../../blog'
 
@@ -21,10 +21,11 @@ export const getStaticPaths = async () => {
   }
 }
 
-export const getStaticProps = async (context: { params: { page: any } }) => {
-  const {
-    params: { page },
-  } = context
+export const getStaticProps = async (context: GetStaticPropsContext<{ page: string }>) => {
+  const page = context.params?.page
+  if (!page) {
+    return { notFound: true }
+  }
   const posts = sortedBlogPost(allBlogs)
   const pageNumber = parseInt(page as string)
   const initialDisplayPosts = posts.slice(

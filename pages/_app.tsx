@@ -1,7 +1,5 @@
 import '@/css/prism.css'
 import '@/css/tailwind.css'
-import '@/css/name-glitch.css'
-import '@fontsource/mukta'
 
 import LogRocket from '@/components/Logrocket'
 import ProgressBar from '@/components/ProgressBar'

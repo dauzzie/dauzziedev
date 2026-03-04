@@ -1,78 +1,127 @@
-# dalelarroder.com ⚡️
+# dauzzie.dev
 
-- **Framework**: [Next.js](https://nextjs.org/)
-- **Deployment**: [Vercel](https://vercel.com)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Analytics**: [Logrocket](https://logrocket.com/)
-- **Content**: [MDX](https://mdxjs.com/) with [Contentlayer](https://www.contentlayer.dev/)
+Personal website and writing hub for stories, poems, and career development.
 
-## Running Locally
+- Framework: [Next.js](https://nextjs.org/) + [Contentlayer](https://www.contentlayer.dev/)
+- Content format: MDX in `data/blog/`
+- Styling: Tailwind CSS
+- Companion app: SwiftUI writer tool in `macos/DauzzieWriter`
 
-### Installation
+## Free Hosting Setup (GitHub + Vercel)
 
-1. Clone this repo
+This stack is free for personal use and works with your current Next.js features.
 
-```bash
-git clone git@github.com:dlarroder/dalelarroder.git
-```
+1. Push this repo to GitHub
+2. Create a Vercel account and import the GitHub repo
+3. Add environment variables in Vercel (same values as `.env.local`)
+4. Deploy
 
-2. Change directory
+Once linked, every `git push` triggers an automatic Vercel deployment.
 
-```sh
-cd dalelarroder
-```
+## 1) Local Website Setup
 
-3. Install yarn packages
+### Install prerequisites (macOS)
 
 ```bash
-yarn
+brew install fnm
+echo 'eval "$(fnm env --use-on-cd)"' >> ~/.zshrc
+source ~/.zshrc
+fnm install 18
+fnm use 18
+corepack enable
+corepack prepare yarn@1.22.22 --activate
 ```
 
-1. Create a `.env.local` file following the `.env.example`
+### Install dependencies and run
 
 ```bash
+cd /Users/dauzzie/Documents/GitHub/dauzziedev
+yarn install
 cp .env.example .env.local
-```
-
-5. Add your environment variables to `.env.local`
-
-```txt
-SPOTIFY_REFRESH_TOKEN=<Your env>
-SPOTIFY_CLIENT_SECRET=<Your env>
-SPOTIFY_CLIENT_ID=<Your env>
-// ...
-```
-
-6. Run the development server
-
-```bash
 yarn dev
 ```
 
-## Contributing
+Open [http://localhost:3000](http://localhost:3000).
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+## 2) Password-Protected Access
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+Set these in `.env.local`:
 
-1. Fork the Project
-2. Commit your Changes (`git commit -m 'Add some Feature'`)
-3. Push to the Branch (`git push origin main`)
-4. Open a Pull Request
+```bash
+SITE_PASSWORD=your-actual-password
+SITE_ACCESS_TOKEN=long-random-token-value
+```
 
-## Lighthouse Score
+- `SITE_PASSWORD` is what you enter on `/gate`
+- `SITE_ACCESS_TOKEN` is the cookie token issued after login
 
-![Screen Shot 2022-07-04 at 10 52 02 AM](https://user-images.githubusercontent.com/52998821/177234494-f6bc0203-ba71-4f59-8eb7-6375e3784b31.png)
+When both env vars are set, middleware protects the site.
 
-## Previous Version
+### Poetry-only password gate
 
-This is the second version of my website.
+Set these if you want only `/poetry` locked:
 
-Prevoius v1 version:
+```bash
+POETRY_PASSWORD=your-poetry-password
+POETRY_ACCESS_TOKEN=another-long-random-token
+```
 
-- https://v1.dalelarroder.com/
+- `/poetry` redirects to `/poetry/unlock` when cookie is missing
+- `/blog` stays public
+- Poetry posts are filtered by the `poetry` tag
 
-## Licence
+## 3) Content Workflow
 
-[MIT](https://github.com/dlarroder/dalelarroder/blob/master/LICENSE) © [Dale Larroder](https://www.dalelarroder.com)
+- Blog/story/poem posts: `data/blog/*.mdx`
+- About/career content: `data/authors/default.mdx`
+- Site identity/slogan/socials: `data/siteMetadata.js`
+
+Useful commands:
+
+```bash
+yarn lint
+yarn build
+yarn serve
+```
+
+## 4) macOS Companion App (DauzzieWriter)
+
+The app creates MDX drafts in `data/blog/`, shows writing prompts, and helps jump into local editing quickly.
+
+Run:
+
+```bash
+cd macos/DauzzieWriter
+swift run
+```
+
+Open in Xcode:
+
+```bash
+cd macos/DauzzieWriter
+open Package.swift
+```
+
+Install as a normal app in Applications:
+
+```bash
+cd macos/DauzzieWriter
+./scripts/install-app.sh
+```
+
+The app includes:
+- Draft creation (`Blog`, `Poem`, `Story`, `Note`)
+- Git commit + push buttons
+- Vercel deployment trigger button
+- Deploy Hook and `VERCEL_TOKEN` settings
+
+## 5) Recommended Tooling
+
+- VS Code extensions: ESLint, Prettier, Tailwind CSS IntelliSense, MDX
+- Image optimization: ImageOptim
+- Product/design: Figma
+- Deployment: Vercel
+- Optional storage stack:
+  - Supabase (DB + auth + storage)
+  - Cloudinary (image storage/optimization)
+  - Upstash Redis (caching, counters, lightweight analytics data)

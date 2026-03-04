@@ -2,9 +2,11 @@ const siteMetadata = {
   title: 'Dausi Husaini',
   author: 'Dausi Husaini',
   headerTitle: 'dauzzie',
-  description: 'Software Engineer at Opentext',
+  description: 'Senior software engineer building systems, automation, and resilient products.',
+  slogan:
+    'Designing secure macOS systems, modernizing legacy code, and accelerating reliable releases at scale.',
   language: 'en-us',
-  theme: 'dark', // system, dark or light
+  theme: 'system', // system, dark or light
   siteUrl: 'https://dauzzie.dev/',
   siteRepo: 'https://github.com/dauzzie/dauzziedev',
   siteLogo: '/static/images/logo.png',

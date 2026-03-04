@@ -9,7 +9,7 @@ interface Props {
 export default function HomeLayout({ children }: Props) {
   return (
     <SectionContainer>
-      <div className="flex flex-col justify-evenly pt-6 md:pt-9">
+      <div className="flex flex-col justify-evenly gap-8 pt-8 md:pt-10">
         <main>{children}</main>
         <Footer />
       </div>
