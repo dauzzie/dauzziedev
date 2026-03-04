@@ -210,6 +210,7 @@ input:-webkit-autofill:focus {
   max-width: 46rem;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .poetry-prose p,
@@ -221,6 +222,67 @@ input:-webkit-autofill:focus {
 .poetry-prose p {
   margin-top: 0.8rem;
   margin-bottom: 0.8rem;
+}
+
+.poetry-prose h1,
+.poetry-prose h2,
+.poetry-prose h3,
+.poetry-prose h4,
+.poetry-prose h5,
+.poetry-prose h6 {
+  text-align: center;
+}
+
+.poetry-prose ul,
+.poetry-prose ol {
+  list-style-position: inside;
+}
+
+body.poetry-mode {
+  color: #2f3a27;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(132, 169, 140, 0.28), transparent 36%),
+    radial-gradient(circle at 82% 14%, rgba(163, 177, 138, 0.24), transparent 34%),
+    radial-gradient(circle at 78% 78%, rgba(190, 197, 160, 0.28), transparent 40%),
+    linear-gradient(180deg, #f7f3e8 0%, #ece7d7 56%, #e4dcc9 100%);
+}
+
+.dark body.poetry-mode {
+  color: #e8e4d5;
+  background:
+    radial-gradient(circle at 16% 10%, rgba(76, 109, 84, 0.28), transparent 38%),
+    radial-gradient(circle at 84% 12%, rgba(92, 105, 73, 0.24), transparent 35%),
+    radial-gradient(circle at 78% 80%, rgba(87, 95, 73, 0.26), transparent 42%),
+    linear-gradient(180deg, #1d241b 0%, #232a20 48%, #1a2018 100%);
+}
+
+body.poetry-mode .apple-nav {
+  border-color: rgba(120, 137, 100, 0.35);
+  background: rgba(247, 243, 232, 0.78);
+}
+
+.dark body.poetry-mode .apple-nav {
+  border-color: rgba(148, 166, 125, 0.3);
+  background: rgba(34, 43, 31, 0.75);
+}
+
+body.poetry-mode .rave-tile {
+  background:
+    linear-gradient(145deg, rgba(247, 243, 232, 0.88), rgba(238, 233, 219, 0.7)),
+    radial-gradient(circle at 30% 18%, rgba(132, 169, 140, 0.15), transparent 56%);
+  border-color: rgba(124, 140, 106, 0.35);
+}
+
+body.poetry-mode .rave-tile:hover {
+  border-color: rgba(108, 130, 90, 0.55);
+  box-shadow: 0 18px 38px -28px rgba(86, 108, 73, 0.65);
+}
+
+.dark body.poetry-mode .rave-tile {
+  background:
+    linear-gradient(145deg, rgba(40, 49, 36, 0.85), rgba(28, 35, 26, 0.78)),
+    radial-gradient(circle at 30% 20%, rgba(125, 150, 112, 0.2), transparent 58%);
+  border-color: rgba(122, 142, 106, 0.35);
 }
 
 @keyframes rave-shift-left {

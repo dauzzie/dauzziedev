@@ -9,8 +9,20 @@ import { AnimatePresence } from 'framer-motion'
 import { ThemeProvider } from 'next-themes'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+
+  useEffect(() => {
+    const isPoetryRoute = router.asPath.startsWith('/poetry')
+    document.body.classList.toggle('poetry-mode', isPoetryRoute)
+    return () => {
+      document.body.classList.remove('poetry-mode')
+    }
+  }, [router.asPath])
+
   return (
     <ThemeProvider attribute="class" defaultTheme={siteMetadata.theme}>
       <Head>
