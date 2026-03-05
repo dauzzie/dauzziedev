@@ -32,6 +32,7 @@ open Package.swift
 - Saves modifications to existing drafts
 - Deletes selected drafts
 - Supports post type selection: `Journal`, `Poem`, `Music`, `Project`
+- Imports local images into `public/static/images/uploads/<section>/` for Journal/Poetry/Music/Project posts
 - Shows a rotating daily writing prompt
 - Lists latest draft files
 - Syncs latest content from GitHub (`git fetch` + `git pull --ff-only`)

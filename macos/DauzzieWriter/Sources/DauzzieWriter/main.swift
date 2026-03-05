@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import Security
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum PostCategory: String, CaseIterable, Identifiable {
   case blog = "Journal"
@@ -21,6 +22,19 @@ enum PostCategory: String, CaseIterable, Identifiable {
       return ["music", "culture"]
     case .project:
       return ["project", "build-log"]
+    }
+  }
+
+  var mediaFolder: String {
+    switch self {
+    case .blog:
+      return "journal"
+    case .poem:
+      return "poetry"
+    case .music:
+      return "music"
+    case .project:
+      return "projects"
     }
   }
 
@@ -467,6 +481,74 @@ final class WriterViewModel: ObservableObject {
     statusMessage = "Image markdown inserted."
   }
 
+  func importImagesFromDisk(insertMarkdown: Bool) {
+    guard let repo = effectiveRepoPath() else {
+      statusMessage = "Set a valid git repo path first."
+      return
+    }
+
+    let panel = NSOpenPanel()
+    panel.title = "Import Images"
+    panel.message = "Choose image files to copy into this project."
+    panel.canChooseFiles = true
+    panel.canChooseDirectories = false
+    panel.allowsMultipleSelection = true
+    panel.allowedContentTypes = [.image]
+
+    guard panel.runModal() == .OK else { return }
+
+    let targetDirectory = (repo as NSString).appendingPathComponent(
+      "public/static/images/uploads/\(selectedPostType.mediaFolder)"
+    )
+
+    do {
+      try FileManager.default.createDirectory(
+        atPath: targetDirectory,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    } catch {
+      statusMessage = "Failed to create image folder: \(error.localizedDescription)"
+      return
+    }
+
+    var importedWebPaths: [String] = []
+
+    for sourceURL in panel.urls {
+      let ext = sourceURL.pathExtension.lowercased()
+      let basename = sourceURL.deletingPathExtension().lastPathComponent
+      let safeBase = slugify(basename).isEmpty ? "image" : slugify(basename)
+      let filename = uniqueFilename(base: safeBase, ext: ext, in: targetDirectory)
+      let destinationURL = URL(fileURLWithPath: targetDirectory).appendingPathComponent(filename)
+
+      do {
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+        let webPath = "/static/images/uploads/\(selectedPostType.mediaFolder)/\(filename)"
+        addImage(webPath)
+        importedWebPaths.append(webPath)
+      } catch {
+        statusMessage = "Failed to import \(sourceURL.lastPathComponent): \(error.localizedDescription)"
+      }
+    }
+
+    guard !importedWebPaths.isEmpty else {
+      if statusMessage.isEmpty {
+        statusMessage = "No images were imported."
+      }
+      return
+    }
+
+    newImageInput = importedWebPaths.first ?? ""
+
+    if insertMarkdown {
+      let markdown = importedWebPaths.map { "\n\n![Image](\($0))\n" }.joined()
+      appendToBody(markdown)
+      statusMessage = "Imported and inserted \(importedWebPaths.count) image(s)."
+    } else {
+      statusMessage = "Imported \(importedWebPaths.count) image(s)."
+    }
+  }
+
   func insertResourceLink() {
     let title = resourceTitleInput.trimmingCharacters(in: .whitespacesAndNewlines)
     let url = resourceURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -864,6 +946,17 @@ final class WriterViewModel: ObservableObject {
     return words.joined(separator: "-")
   }
 
+  private func uniqueFilename(base: String, ext: String, in directory: String) -> String {
+    let normalizedExt = ext.isEmpty ? "png" : ext
+    var candidate = "\(base).\(normalizedExt)"
+    var counter = 1
+    while FileManager.default.fileExists(atPath: (directory as NSString).appendingPathComponent(candidate)) {
+      candidate = "\(base)-\(counter).\(normalizedExt)"
+      counter += 1
+    }
+    return candidate
+  }
+
   private func runAction(task: @escaping () -> CommandResult, completion: @escaping (CommandResult) -> Void) {
     isRunningAction = true
     Task.detached {
@@ -899,7 +992,17 @@ final class WriterViewModel: ObservableObject {
 
     let add = runCommand(
       "git",
-      ["-C", repo, "add", "data/blog", "data/poetry", "data/authors", "data/siteMetadata.js"]
+      [
+        "-C",
+        repo,
+        "add",
+        "data/blog",
+        "data/poetry",
+        "data/authors",
+        "data/siteMetadata.js",
+        "public/static/images",
+        "public/static/resume",
+      ]
     )
     combined.append("$ git add ...\n\(add.output)")
     guard add.exitCode == 0 else {
@@ -1325,6 +1428,10 @@ private struct ContentView: View {
                   TextField("Image URL or /static path", text: $model.newImageInput)
                     .textFieldStyle(.roundedBorder)
                   Button("Add") { model.addImageFromInput() }
+                    .buttonStyle(.bordered)
+                  Button("Import Files") { model.importImagesFromDisk(insertMarkdown: false) }
+                    .buttonStyle(.bordered)
+                  Button("Import + Insert") { model.importImagesFromDisk(insertMarkdown: true) }
                     .buttonStyle(.bordered)
                   Button("Insert MD") { model.insertImageMarkdown() }
                     .buttonStyle(.bordered)

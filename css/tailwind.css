@@ -18,6 +18,9 @@ html {
 
 body {
   @apply text-gray-800 dark:text-gray-100;
+  --route-accent: #0a84ff;
+  --route-accent-hover: #0674e8;
+  --route-accent-contrast: #ffffff;
   background:
     radial-gradient(circle at top left, rgba(10, 132, 255, 0.18), transparent 36%),
     radial-gradient(circle at 90% 18%, rgba(94, 234, 212, 0.17), transparent 30%),
@@ -71,8 +74,33 @@ input:-webkit-autofill:focus {
 }
 
 #nprogress .bar {
-  background: #0a84ff !important;
+  background: var(--route-accent) !important;
   height: 4px !important;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--route-accent) !important,
+    0 0 5px var(--route-accent) !important;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.45rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--route-accent-contrast);
+  background: var(--route-accent);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.tag-pill:hover {
+  background: var(--route-accent-hover);
+  transform: translateY(-1px);
 }
 
 .apple-nav {
@@ -307,6 +335,9 @@ input:-webkit-autofill:focus {
 }
 
 body.poetry-mode {
+  --route-accent: #6f805c;
+  --route-accent-hover: #5d6d4d;
+  --route-accent-contrast: #f6f1e4;
   color: #2f3a27;
   background:
     radial-gradient(circle at 18% 12%, rgba(132, 169, 140, 0.28), transparent 36%),
@@ -479,6 +510,9 @@ body.poetry-mode .apple-glass-card {
 }
 
 body.music-mode {
+  --route-accent: #d45da5;
+  --route-accent-hover: #c3489a;
+  --route-accent-contrast: #fff6ef;
   color: #2f1f17;
   background:
     radial-gradient(circle at 16% 14%, rgba(255, 160, 64, 0.28), transparent 34%),
@@ -592,6 +626,9 @@ body.music-mode .rave-tile:hover {
 }
 
 body.project-mode {
+  --route-accent: #3de2c8;
+  --route-accent-hover: #22ceb2;
+  --route-accent-contrast: #03131b;
   color: #d8f6ff;
   background:
     radial-gradient(circle at 12% 16%, rgba(0, 194, 255, 0.22), transparent 32%),
