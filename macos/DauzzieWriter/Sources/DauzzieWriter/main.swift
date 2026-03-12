@@ -568,6 +568,17 @@ final class WriterViewModel: ObservableObject {
     statusMessage = "Inserted \(widget.rawValue)."
   }
 
+  func normalizeEmbedsInBody() {
+    let normalized = sanitizeBodyForMDX(body)
+    guard normalized != body else {
+      statusMessage = "Embeds already look MDX-safe."
+      return
+    }
+    body = normalized
+    refreshDirtyState()
+    statusMessage = "Embed markup normalized for MDX."
+  }
+
   func applyPostTypeSelection(_ type: PostCategory) {
     selectedPostType = type
     let normalized = Set(selectedTags.map { normalizeCategory($0) })
@@ -784,6 +795,7 @@ final class WriterViewModel: ObservableObject {
     let images = imagePaths.map { "'\($0)'" }.joined(separator: ", ")
     let fallbackSummary = summary.isEmpty ? "New writing draft." : summary
     let draftBody = body.isEmpty ? "Start writing..." : body
+    let sanitizedBody = sanitizeBodyForMDX(draftBody)
 
     return """
     ---
@@ -797,8 +809,38 @@ final class WriterViewModel: ObservableObject {
     author: "\(author)"
     ---
 
-    \(draftBody)
+    \(sanitizedBody)
     """
+  }
+
+  private func sanitizeBodyForMDX(_ value: String) -> String {
+    var output = value
+    output = output.replacingOccurrences(of: "frameborder=", with: "frameBorder=")
+    output = output.replacingOccurrences(of: "referrerpolicy=", with: "referrerPolicy=")
+
+    output = output.replacingOccurrences(
+      of: "allowfullscreen=\"\"",
+      with: "allowFullScreen"
+    )
+    output = output.replacingOccurrences(
+      of: "allowfullscreen",
+      with: "allowFullScreen"
+    )
+
+    if let regex = try? NSRegularExpression(
+      pattern: #"style="\s*border-radius\s*:\s*([^";]+);?\s*""#,
+      options: [.caseInsensitive]
+    ) {
+      let range = NSRange(output.startIndex..<output.endIndex, in: output)
+      output = regex.stringByReplacingMatches(
+        in: output,
+        options: [],
+        range: range,
+        withTemplate: "style={{ borderRadius: '$1' }}"
+      )
+    }
+
+    return output
   }
 
   private func draftsDirectoryPath(for type: PostCategory) -> String {
@@ -1477,6 +1519,9 @@ private struct ContentView: View {
                   }
                 }
                 .buttonStyle(.bordered)
+
+                Button("Normalize Embeds") { model.normalizeEmbedsInBody() }
+                  .buttonStyle(.bordered)
               }
               .padding(.top, 6)
             }
