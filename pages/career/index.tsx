@@ -25,6 +25,9 @@ export default function CareerPage() {
             <Link href="/career/mba" className="apple-button-secondary">
               MBA
             </Link>
+            <Link href="/career/vision" className="apple-button-secondary">
+              Vision
+            </Link>
           </div>
         </section>
 

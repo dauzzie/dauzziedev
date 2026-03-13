@@ -4,6 +4,7 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
 import {
+  HiOutlineAcademicCap,
   HiOutlineDocumentAdd,
   HiOutlineDocumentDuplicate,
   HiOutlineHome,
@@ -51,6 +52,9 @@ export default function usePaletteOptions() {
     },
     { id: '/poetry', name: 'Poetry', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     { id: '/music', name: 'Music', icon: <HiOutlineMusicNote />, onSelect: (v) => router.push(v) },
+    { id: '/career', name: 'Career', icon: <HiOutlineAcademicCap />, onSelect: (v) => router.push(v) },
+    { id: '/career/mba', name: 'MBA', icon: <HiOutlineAcademicCap />, onSelect: (v) => router.push(v) },
+    { id: '/dreams', name: 'Dreams', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     {
       id: '/projects',
       name: 'Projects',

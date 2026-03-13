@@ -20,15 +20,18 @@ export default function App({ Component, pageProps }: AppProps) {
     const isPoetryRoute = path.startsWith('/poetry')
     const isMusicRoute = path.startsWith('/music')
     const isProjectRoute = path.startsWith('/projects')
+    const isDreamRoute = path.startsWith('/dreams')
 
     document.body.classList.toggle('poetry-mode', isPoetryRoute)
     document.body.classList.toggle('music-mode', isMusicRoute)
     document.body.classList.toggle('project-mode', isProjectRoute)
+    document.body.classList.toggle('dream-mode', isDreamRoute)
 
     return () => {
       document.body.classList.remove('poetry-mode')
       document.body.classList.remove('music-mode')
       document.body.classList.remove('project-mode')
+      document.body.classList.remove('dream-mode')
     }
   }, [router.asPath])
 
