@@ -69,6 +69,25 @@ module.exports = withContentlayer(
     experimental: {
       newNextLinkBehavior: true,
     },
+    async redirects() {
+      return [
+        {
+          source: '/mba',
+          destination: '/career/mba',
+          permanent: false,
+        },
+        {
+          source: '/career/MBA',
+          destination: '/career/mba',
+          permanent: false,
+        },
+        {
+          source: '/career/mba/',
+          destination: '/career/mba',
+          permanent: false,
+        },
+      ]
+    },
     async headers() {
       return [
         {

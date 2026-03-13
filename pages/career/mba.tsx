@@ -46,7 +46,8 @@ const mbaTracks: Track[] = [
         title: 'Introduction to Marketing',
         provider: 'Wharton / Coursera',
         url: 'https://www.coursera.org/learn/wharton-marketing',
-        reason: 'Teaches positioning, segmentation, and demand generation so product decisions match customer behavior.',
+        reason:
+          'Teaches positioning, segmentation, and demand generation so product decisions match customer behavior.',
       },
       {
         id: 'accounting',
@@ -178,7 +179,8 @@ const mbaTracks: Track[] = [
         title: 'Product & Service Creation in the Internet Age',
         provider: 'MIT Sloan / edX',
         url: 'https://www.edx.org/course/product-design-the-delta-method',
-        reason: 'Strengthens product design and iterative solution development in modern internet markets.',
+        reason:
+          'Strengthens product design and iterative solution development in modern internet markets.',
       },
     ],
   },
@@ -208,7 +210,8 @@ const mbaTracks: Track[] = [
         title: 'Leadership Communication for Maximum Impact',
         provider: 'Northwestern / Coursera',
         url: 'https://www.coursera.org/learn/leadership-communication',
-        reason: 'Improves influence and clarity for alignment with leadership, peers, and stakeholders.',
+        reason:
+          'Improves influence and clarity for alignment with leadership, peers, and stakeholders.',
       },
     ],
   },
@@ -220,22 +223,46 @@ const topMbaSkills: Skill[] = [
     reason: 'Prioritize long-term advantage over short-term feature output.',
   },
   { name: 'Market Positioning', reason: 'Define who the product is for and why it wins.' },
-  { name: 'Financial Literacy', reason: 'Interpret P&L, cost drivers, and profitability tradeoffs.' },
-  { name: 'Capital Allocation', reason: 'Decide where time, money, and talent create highest return.' },
-  { name: 'Product Strategy', reason: 'Connect roadmap choices to business goals and customer value.' },
-  { name: 'Operational Excellence', reason: 'Design systems that are reliable, scalable, and efficient.' },
+  {
+    name: 'Financial Literacy',
+    reason: 'Interpret P&L, cost drivers, and profitability tradeoffs.',
+  },
+  {
+    name: 'Capital Allocation',
+    reason: 'Decide where time, money, and talent create highest return.',
+  },
+  {
+    name: 'Product Strategy',
+    reason: 'Connect roadmap choices to business goals and customer value.',
+  },
+  {
+    name: 'Operational Excellence',
+    reason: 'Design systems that are reliable, scalable, and efficient.',
+  },
   {
     name: 'Decision-Making Under Uncertainty',
     reason: 'Move quickly with incomplete information and clear risk framing.',
   },
-  { name: 'Data-Driven Leadership', reason: 'Use metrics to guide direction without losing product intuition.' },
-  { name: 'Go-To-Market Design', reason: 'Link product delivery with adoption, retention, and revenue motion.' },
-  { name: 'Entrepreneurial Execution', reason: 'Validate ideas, test hypotheses, and ship meaningful outcomes.' },
+  {
+    name: 'Data-Driven Leadership',
+    reason: 'Use metrics to guide direction without losing product intuition.',
+  },
+  {
+    name: 'Go-To-Market Design',
+    reason: 'Link product delivery with adoption, retention, and revenue motion.',
+  },
+  {
+    name: 'Entrepreneurial Execution',
+    reason: 'Validate ideas, test hypotheses, and ship meaningful outcomes.',
+  },
   {
     name: 'Organizational Leadership',
     reason: 'Build teams, structures, and incentives that compound performance.',
   },
-  { name: 'Executive Communication', reason: 'Align diverse stakeholders through concise, high-trust messaging.' },
+  {
+    name: 'Executive Communication',
+    reason: 'Align diverse stakeholders through concise, high-trust messaging.',
+  },
 ]
 
 const allCourses = mbaTracks.flatMap((track) => track.courses)
@@ -327,16 +354,21 @@ export default function CareerMbaPage() {
 
   return (
     <MainLayout>
-      <PageSEO title={`MBA - ${siteMetadata.author}`} description="Self-directed MBA roadmap with saved progress." />
+      <PageSEO
+        title={`MBA - ${siteMetadata.author}`}
+        description="Self-directed MBA roadmap with saved progress."
+      />
       <div className="space-y-8 pt-8 pb-10">
         <section className="apple-glass-card apple-glass-sheen p-6 md:p-8">
-          <p className="text-xs font-semibold tracking-[0.16em] text-primary-500 uppercase">Career Hub</p>
+          <p className="text-xs font-semibold tracking-[0.16em] text-primary-500 uppercase">
+            Career Hub
+          </p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 md:text-5xl">
             Self-Directed Tech MBA
           </h1>
           <p className="mt-4 max-w-4xl text-sm text-gray-600 dark:text-gray-300 md:text-base">
-            Full roadmap with structured reasoning, tracked progress, and personal notes. Built from your
-            journal post and organized for practical weekly execution.
+            Full roadmap with structured reasoning, tracked progress, and personal notes. Built from
+            your journal post and organized for practical weekly execution.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -349,26 +381,43 @@ export default function CareerMbaPage() {
             <Link href="/career/vision" className="apple-button-secondary">
               Vision
             </Link>
-            <Link href="/journal/2026-03-13-self-directed-tech-mba" className="apple-button-secondary">
+            <Link
+              href="/journal/2026-03-13-self-directed-tech-mba"
+              className="apple-button-secondary"
+            >
               Source Journal Post
             </Link>
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-4">
             <div className="rounded-2xl border border-gray-200/70 bg-white/60 p-4 dark:border-gray-700/80 dark:bg-gray-900/40">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">Courses</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{totalCourses}</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                Courses
+              </p>
+              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {totalCourses}
+              </p>
             </div>
             <div className="rounded-2xl border border-gray-200/70 bg-white/60 p-4 dark:border-gray-700/80 dark:bg-gray-900/40">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">Completed</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{completedCount}</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                Completed
+              </p>
+              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {completedCount}
+              </p>
             </div>
             <div className="rounded-2xl border border-gray-200/70 bg-white/60 p-4 dark:border-gray-700/80 dark:bg-gray-900/40">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">Progress</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{progressPct}%</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                Progress
+              </p>
+              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {progressPct}%
+              </p>
             </div>
             <div className="rounded-2xl border border-gray-200/70 bg-white/60 p-4 dark:border-gray-700/80 dark:bg-gray-900/40">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">Last Saved</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                Last Saved
+              </p>
               <p className="mt-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
                 {tracker.updatedAt ? new Date(tracker.updatedAt).toLocaleString() : 'Not saved yet'}
               </p>
@@ -376,7 +425,12 @@ export default function CareerMbaPage() {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={saveProgress} className="apple-button-primary" disabled={!hydrated}>
+            <button
+              type="button"
+              onClick={saveProgress}
+              className="apple-button-primary"
+              disabled={!hydrated}
+            >
               Save Progress
             </button>
             <button
@@ -394,14 +448,22 @@ export default function CareerMbaPage() {
         </section>
 
         <section className="apple-glass-card p-6 md:p-8">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">Top 12 MBA Skills</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">
+            Top 12 MBA Skills
+          </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            These are the highest-leverage leadership and business capabilities this track is meant to build.
+            These are the highest-leverage leadership and business capabilities this track is meant
+            to build.
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {topMbaSkills.map((skill) => (
-              <article key={skill.name} className="rounded-2xl border border-gray-200/70 p-4 dark:border-gray-700/80">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{skill.name}</h3>
+              <article
+                key={skill.name}
+                className="rounded-2xl border border-gray-200/70 p-4 dark:border-gray-700/80"
+              >
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                  {skill.name}
+                </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{skill.reason}</p>
               </article>
             ))}
@@ -411,7 +473,9 @@ export default function CareerMbaPage() {
         <section className="space-y-4">
           {mbaTracks.map((track) => (
             <article key={track.id} className="apple-glass-card p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">{track.title}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">
+                {track.title}
+              </h2>
               <p className="mt-2 text-sm font-medium text-primary-500">Goal: {track.goal}</p>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{track.whyItMatters}</p>
 

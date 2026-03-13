@@ -52,8 +52,18 @@ export default function usePaletteOptions() {
     },
     { id: '/poetry', name: 'Poetry', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     { id: '/music', name: 'Music', icon: <HiOutlineMusicNote />, onSelect: (v) => router.push(v) },
-    { id: '/career', name: 'Career', icon: <HiOutlineAcademicCap />, onSelect: (v) => router.push(v) },
-    { id: '/career/mba', name: 'MBA', icon: <HiOutlineAcademicCap />, onSelect: (v) => router.push(v) },
+    {
+      id: '/career',
+      name: 'Career',
+      icon: <HiOutlineAcademicCap />,
+      onSelect: (v) => router.push(v),
+    },
+    {
+      id: '/career/mba',
+      name: 'MBA',
+      icon: <HiOutlineAcademicCap />,
+      onSelect: (v) => router.push(v),
+    },
     { id: '/dreams', name: 'Dreams', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     {
       id: '/projects',
