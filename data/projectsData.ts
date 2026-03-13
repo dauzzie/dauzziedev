@@ -22,6 +22,61 @@ export interface ProjectItem {
 
 const projectsData: ProjectItem[] = [
   {
+    slug: 'liftwatch',
+    title: 'LiftWatch',
+    description:
+      'Designed and built a full iPhone + Apple Watch fitness app from scratch, including data sync, cloud persistence, and App Store deployment workflow.',
+    imgSrc: '/static/images/project/liftwatch/ios-workouts-home.png',
+    tag: ['swift', 'watchkit', 'watch extension', 'cloudkit', 'app store connect'],
+    href: '/projects/LiftWatch/support',
+    featured: true,
+    role: 'Founding iOS/watchOS Engineer',
+    status: 'In Progress',
+    duration: '2026 - Present',
+    overview:
+      'LiftWatch is an end-to-end product build focused on workout tracking and progress visibility across iPhone and Apple Watch.',
+    problem:
+      'I needed to build a fitness product where watch-collected activity data remains reliable, syncs cleanly to phone, and is production-ready for App Store release.',
+    solution:
+      'I designed the app architecture from zero, implemented WatchKit + Watch Extension flows for data capture/sync, integrated CloudKit for persistence, and built the App Store Connect pipeline for versioning, metadata, and deployment readiness.',
+    impact: [
+      'Shipped a working cross-device architecture from concept to deployable build',
+      'Established a repeatable App Store Connect release workflow',
+      'Validated watch-to-phone sync strategy with CloudKit-backed data flow',
+    ],
+    impactMetrics: [
+      { label: 'Platforms', value: 'iOS + watchOS companion architecture' },
+      { label: 'Release Flow', value: 'App Store Connect metadata + build pipeline' },
+      { label: 'Data Layer', value: 'CloudKit-backed sync and persistence' },
+    ],
+    skillsLearned: [
+      'Designing and shipping an app end-to-end from blank repo',
+      'Using WatchKit and Watch Extension for companion app synchronization',
+      'Modeling CloudKit record structure and sync behavior',
+      'Preparing production releases in App Store Connect (builds, metadata, compliance)',
+      'Balancing product UX decisions with system constraints across iPhone and Apple Watch',
+    ],
+    screenshots: [
+      {
+        src: '/static/images/project/liftwatch/watch-new-workout-flow.png',
+        alt: 'LiftWatch watchOS new workout flow with type, category, and exercise',
+      },
+      {
+        src: '/static/images/project/liftwatch/watch-workouts-list.png',
+        alt: 'LiftWatch watchOS workouts list with sync status',
+      },
+      {
+        src: '/static/images/project/liftwatch/ios-workouts-home.png',
+        alt: 'LiftWatch iOS home screen with workout cards and plan summary',
+      },
+      {
+        src: '/static/images/project/liftwatch/ios-history-progressive-overload.png',
+        alt: 'LiftWatch iOS history screen with progressive overload chart',
+      },
+    ],
+    stack: ['Swift', 'WatchKit', 'Watch Extension', 'CloudKit', 'Xcode', 'App Store Connect'],
+  },
+  {
     slug: 'math-game-sprint',
     title: 'Math Game Sprint',
     description:
@@ -29,7 +84,6 @@ const projectsData: ProjectItem[] = [
     imgSrc: '/static/images/project/mathgame.png',
     tag: ['javascript', 'css'],
     href: 'https://mathgame-dlarroder.vercel.app/',
-    featured: true,
     role: 'Solo Developer',
     status: 'Live',
     overview:
