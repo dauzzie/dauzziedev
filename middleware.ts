@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SITE_ACCESS_COOKIE } from './lib/auth'
+import { SITE_ACCESS_COOKIE, isPasswordProtectionEnabled } from './lib/auth'
 
 const PUBLIC_PATHS = ['/gate', '/api/gate']
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
-  const accessToken = process.env.SITE_ACCESS_TOKEN
 
-  if (!accessToken) {
+  if (!isPasswordProtectionEnabled()) {
     return NextResponse.next()
   }
+
+  const accessToken = process.env.SITE_ACCESS_TOKEN
 
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     return NextResponse.next()

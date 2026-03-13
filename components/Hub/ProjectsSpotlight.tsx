@@ -32,11 +32,8 @@ export default function ProjectsSpotlight() {
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {featuredProjects.map((project, index) => (
-            <motion.a
+            <motion.div
               key={project.title}
-              href={project.href}
-              target="_blank"
-              rel="noopener noreferrer"
               className="rave-tile group block rounded-2xl p-5"
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -50,7 +47,20 @@ export default function ProjectsSpotlight() {
                 {project.title}
               </h4>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{project.description}</p>
-            </motion.a>
+              <div className="mt-3 flex gap-3">
+                <Link href={`/projects/${project.slug}`} className="apple-button-secondary">
+                  Case Study
+                </Link>
+                <a
+                  href={project.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="apple-button-secondary"
+                >
+                  Demo
+                </a>
+              </div>
+            </motion.div>
           ))}
         </div>
       </motion.div>

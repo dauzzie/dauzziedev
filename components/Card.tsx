@@ -6,12 +6,13 @@ interface CardProps {
   description: string
   imgSrc: string
   href: string
+  tags?: string[]
 }
 
-export default function Card({ title, description, imgSrc, href }: CardProps) {
+export default function Card({ title, description, imgSrc, href, tags = [] }: CardProps) {
   return (
     <div className="p-2 md:w-1/2 md" style={{ maxWidth: '544px' }}>
-      <div className="h-full overflow-hidden hover:bg-gray-200 hover:bg-opacity-20 rounded-md border-opacity-60 dark:border-gray-700">
+      <div className="rave-tile h-full overflow-hidden rounded-2xl border-opacity-60 dark:border-gray-700">
         {href ? (
           <Link href={href} aria-label={`Link to ${title}`}>
             <Image
@@ -42,6 +43,25 @@ export default function Card({ title, description, imgSrc, href }: CardProps) {
             )}
           </h2>
           <p className="prose text-gray-500 max-w-none dark:text-gray-400">{description}</p>
+          {tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-primary-500/25 bg-primary-500/10 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          {href && (
+            <div className="mt-5">
+              <Link href={href} className="apple-button-secondary" aria-label={`Open ${title}`}>
+                Open Project
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
