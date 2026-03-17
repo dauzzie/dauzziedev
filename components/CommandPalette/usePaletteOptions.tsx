@@ -64,7 +64,7 @@ export default function usePaletteOptions() {
       icon: <HiOutlineAcademicCap />,
       onSelect: (v) => router.push(v),
     },
-    { id: '/dreams', name: 'Dreams', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
+    { id: '/dream', name: 'Dream', icon: <HiOutlineSparkles />, onSelect: (v) => router.push(v) },
     {
       id: '/projects',
       name: 'Projects',

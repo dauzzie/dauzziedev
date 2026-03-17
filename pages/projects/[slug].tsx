@@ -78,6 +78,75 @@ export default function ProjectCaseStudyPage({
           </div>
         </section>
 
+        {project.marketingHeadline && (
+          <section className="rave-tile rounded-3xl p-6 md:p-8">
+            <p className="text-xs font-semibold tracking-[0.16em] text-primary-500 uppercase">
+              Product Pitch
+            </p>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 md:text-4xl">
+              {project.marketingHeadline}
+            </h2>
+            {project.marketingSubheadline && (
+              <p className="mt-3 max-w-4xl text-sm text-gray-600 dark:text-gray-300 md:text-base">
+                {project.marketingSubheadline}
+              </p>
+            )}
+            <div className="mt-5 flex flex-wrap gap-3">
+              {project.primaryCTA && (
+                <a href={project.primaryCTA.href} className="apple-button-primary">
+                  {project.primaryCTA.label}
+                </a>
+              )}
+              {project.secondaryCTA && (
+                <a href={project.secondaryCTA.href} className="apple-button-secondary">
+                  {project.secondaryCTA.label}
+                </a>
+              )}
+            </div>
+          </section>
+        )}
+
+        {project.howItWorks && project.howItWorks.length > 0 && (
+          <section id="how-it-works" className="apple-glass-card p-6 md:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">
+              How It Works
+            </h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {project.howItWorks.map((step, index) => (
+                <article
+                  key={step.title}
+                  className="rounded-2xl border border-white/20 bg-white/45 p-4 dark:bg-black/20"
+                >
+                  <p className="text-xs font-semibold tracking-[0.12em] text-primary-500 uppercase">
+                    Step {index + 1}
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {step.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {project.marketingFeatures && project.marketingFeatures.length > 0 && (
+          <section className="grid gap-4 md:grid-cols-3">
+            {project.marketingFeatures.map((feature) => (
+              <article key={feature.title} className="rave-tile rounded-2xl p-5">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {feature.title}
+                </h2>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </section>
+        )}
+
         {project.videoEmbedUrl && (
           <section className="rave-tile rounded-3xl p-6 md:p-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 md:text-2xl">
@@ -132,6 +201,26 @@ export default function ProjectCaseStudyPage({
             ))}
           </div>
         </section>
+
+        {project.primaryCTA && (
+          <section
+            id="waitlist"
+            className="apple-glass-card apple-glass-sheen p-6 text-center md:p-10"
+          >
+            <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 md:text-4xl">
+              Ready to Try {project.title}?
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-600 dark:text-gray-300 md:text-base">
+              If you want to test the product early or collaborate, use the CTA below and I can
+              share access details.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <a href={project.primaryCTA.href} className="apple-button-primary">
+                {project.primaryCTA.label}
+              </a>
+            </div>
+          </section>
+        )}
 
         <section className="grid gap-4 md:grid-cols-2">
           <article className="rave-tile rounded-2xl p-5">

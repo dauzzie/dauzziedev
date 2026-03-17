@@ -1,7 +1,7 @@
+import CareerTabs from '@/components/Career/CareerTabs'
 import { PageSEO } from '@/components/SEO'
 import siteMetadata from '@/data/siteMetadata'
 import MainLayout from '@/layouts/MainLayout'
-import Link from 'next/link'
 
 export default function CareerPage() {
   return (
@@ -18,17 +18,7 @@ export default function CareerPage() {
           <p className="mt-4 max-w-3xl text-sm text-gray-600 dark:text-gray-300 md:text-base">
             This page tracks professional growth, long-term goals, and strategic learning paths.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/career" className="apple-button-primary">
-              Career
-            </Link>
-            <Link href="/career/mba" className="apple-button-secondary">
-              MBA
-            </Link>
-            <Link href="/career/vision" className="apple-button-secondary">
-              Vision
-            </Link>
-          </div>
+          <CareerTabs active="career" />
         </section>
 
         <section className="rave-tile rounded-3xl p-6 md:p-8">

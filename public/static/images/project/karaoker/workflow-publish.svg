@@ -1,0 +1,11 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="700" rx="28" fill="#161332"/>
+  <rect x="36" y="36" width="1128" height="628" rx="22" fill="#211B47"/>
+  <text x="72" y="100" fill="#F6F7FF" font-size="36" font-family="Avenir, Helvetica, Arial, sans-serif" font-weight="700">3. Publish</text>
+  <text x="72" y="145" fill="#D2CDE6" font-size="22" font-family="Avenir, Helvetica, Arial, sans-serif">Export to social-ready formats with title cards and smart tags.</text>
+  <rect x="72" y="220" width="500" height="340" rx="24" fill="#111030"/>
+  <rect x="120" y="280" width="400" height="220" rx="18" fill="#2A2555"/>
+  <circle cx="1020" cy="380" r="120" fill="#8A6CFF" fill-opacity="0.82"/>
+  <rect x="840" y="535" width="360" height="74" rx="22" fill="#FF5CA4"/>
+  <text x="935" y="582" fill="white" font-size="30" font-family="Avenir, Helvetica, Arial, sans-serif" font-weight="700">Share</text>
+</svg>

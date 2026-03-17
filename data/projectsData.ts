@@ -18,6 +18,12 @@ export interface ProjectItem {
   videoEmbedUrl?: string
   screenshots: { src: string; alt: string }[]
   stack: string[]
+  marketingHeadline?: string
+  marketingSubheadline?: string
+  howItWorks?: { title: string; description: string }[]
+  marketingFeatures?: { title: string; description: string }[]
+  primaryCTA?: { label: string; href: string }
+  secondaryCTA?: { label: string; href: string }
 }
 
 const projectsData: ProjectItem[] = [
@@ -71,10 +77,95 @@ const projectsData: ProjectItem[] = [
       },
       {
         src: '/static/images/project/liftwatch/ios-history-progressive-overload.png',
-        alt: 'LiftWatch iOS history screen with progressive overload chart',
+        alt: 'LiftWatch iOS planning view with weekly pattern and tomorrow exercises',
       },
     ],
     stack: ['Swift', 'WatchKit', 'Watch Extension', 'CloudKit', 'Xcode', 'App Store Connect'],
+  },
+  {
+    slug: 'karaoker',
+    title: 'Karaoker',
+    description:
+      'An AI-powered karaoke creation platform focused on fast vocal capture, intelligent enhancement, and share-ready publishing workflows.',
+    imgSrc: '/static/images/project/karaoker/hero.svg',
+    tag: ['swift', 'audio processing', 'ai', 'product design', 'consumer app'],
+    href: '/projects/karaoker#waitlist',
+    role: 'Founder / Product Engineer',
+    status: 'In Progress',
+    duration: '2026 - Present',
+    overview:
+      'Karaoker is designed as a creator-focused karaoke studio where users can record vocals, enhance quality with AI assistance, and publish polished performances quickly.',
+    problem:
+      'Most karaoke apps either feel too casual for creators or too technical for everyday users. I wanted a tool that feels playful while still producing high-quality, publishable output.',
+    solution:
+      'I designed a guided three-stage flow (Capture -> Enhance -> Publish) with clear user feedback, fast iteration loops, and a marketing-first presentation to communicate product value.',
+    impact: [
+      'Defined a clear product value proposition with a user journey optimized for conversion',
+      'Designed a marketing narrative and demo flow that makes product capabilities easy to understand',
+      'Established extensible architecture for additional AI audio features and social publishing formats',
+    ],
+    impactMetrics: [
+      { label: 'Core Flow', value: 'Capture, Enhance, Publish in one guided session' },
+      { label: 'Positioning', value: 'Creator-friendly karaoke production experience' },
+      { label: 'Distribution', value: 'Built for social-ready export and sharing' },
+    ],
+    skillsLearned: [
+      'Packaging a technical product into a conversion-oriented marketing story',
+      'Designing end-to-end onboarding and creator workflows',
+      'Balancing product UX clarity with technical depth in AI/audio domains',
+      'Structuring project pages for recruiter-friendly portfolio storytelling',
+    ],
+    screenshots: [
+      {
+        src: '/static/images/project/karaoker/workflow-capture.svg',
+        alt: 'Karaoker capture flow UI',
+      },
+      {
+        src: '/static/images/project/karaoker/workflow-enhance.svg',
+        alt: 'Karaoker AI enhancement flow UI',
+      },
+      {
+        src: '/static/images/project/karaoker/workflow-publish.svg',
+        alt: 'Karaoker publishing flow UI',
+      },
+    ],
+    stack: ['Swift', 'Audio DSP', 'AI-assisted processing', 'Product strategy', 'UX design'],
+    marketingHeadline: 'Turn any song into a studio-quality karaoke performance in minutes.',
+    marketingSubheadline:
+      'Karaoker gives creators an end-to-end vocal workflow: record instantly, enhance with AI, and publish in social-ready formats.',
+    howItWorks: [
+      {
+        title: 'Capture',
+        description: 'Pick a track, set your key, and record with real-time guidance.',
+      },
+      {
+        title: 'Enhance',
+        description:
+          'Apply AI cleanup, pitch support, and vocal balancing without leaving the flow.',
+      },
+      {
+        title: 'Publish',
+        description: 'Export polished versions with titles, captions, and share-ready formats.',
+      },
+    ],
+    marketingFeatures: [
+      {
+        title: 'Creator-Speed Workflow',
+        description: 'A streamlined session design minimizes setup and keeps users in flow state.',
+      },
+      {
+        title: 'AI Vocal Polish',
+        description:
+          'Smart processing improves clarity and consistency while preserving performer style.',
+      },
+      {
+        title: 'Built for Sharing',
+        description:
+          'Designed for fast publish loops to social platforms and portfolio-ready showcases.',
+      },
+    ],
+    primaryCTA: { label: 'Join Waitlist', href: 'mailto:m.daushusaini@gmail.com?subject=Karaoker%20Waitlist' },
+    secondaryCTA: { label: 'See Workflow', href: '#how-it-works' },
   },
   {
     slug: 'math-game-sprint',

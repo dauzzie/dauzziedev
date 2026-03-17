@@ -877,17 +877,58 @@ body.dream-mode .apple-glass-card {
 }
 
 .dream-quote-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
   border: 1px solid rgba(160, 153, 255, 0.35);
   background:
     linear-gradient(145deg, rgba(17, 24, 50, 0.84), rgba(10, 14, 32, 0.8)),
     radial-gradient(circle at 18% 16%, rgba(130, 112, 255, 0.2), transparent 52%);
   box-shadow: 0 22px 54px -34px rgba(86, 111, 255, 0.7);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dream-quote-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 60px -36px rgba(106, 128, 255, 0.8);
+}
+
+.dream-quote-card:focus-visible {
+  outline: 2px solid rgba(155, 160, 255, 0.8);
+  outline-offset: 4px;
+}
+
+.dream-wave-layer {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      108deg,
+      rgba(120, 125, 255, 0) 8%,
+      rgba(120, 125, 255, 0.18) 26%,
+      rgba(92, 206, 255, 0.22) 36%,
+      rgba(129, 255, 209, 0.22) 45%,
+      rgba(255, 198, 124, 0.2) 55%,
+      rgba(241, 120, 255, 0.22) 66%,
+      rgba(120, 125, 255, 0.16) 74%,
+      rgba(120, 125, 255, 0) 92%
+    );
+  mix-blend-mode: screen;
+  transform: translateX(-130%) skewX(-12deg);
+  animation: dream-wave-pass 980ms ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
   body.dream-mode::before,
   body.dream-mode::after {
     animation: none;
+  }
+
+  .dream-wave-layer {
+    animation: none;
+    opacity: 0;
   }
 }
 
@@ -969,6 +1010,20 @@ body.dream-mode .apple-glass-card {
   }
   100% {
     background-position: 100% 100%;
+  }
+}
+
+@keyframes dream-wave-pass {
+  0% {
+    transform: translateX(-130%) skewX(-12deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(130%) skewX(-12deg);
+    opacity: 0;
   }
 }
 

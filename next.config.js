@@ -82,6 +82,21 @@ module.exports = withContentlayer(
           permanent: false,
         },
         {
+          source: '/career/vision',
+          destination: '/dream',
+          permanent: false,
+        },
+        {
+          source: '/career/dream',
+          destination: '/dream',
+          permanent: false,
+        },
+        {
+          source: '/dreams',
+          destination: '/dream',
+          permanent: false,
+        },
+        {
           source: '/career/mba/',
           destination: '/career/mba',
           permanent: false,
